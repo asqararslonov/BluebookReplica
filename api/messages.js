@@ -1,9 +1,11 @@
 // GET /api/messages?code=ABC123&after=<ts>  -> { messages, serverTime }
 import { json, cors, query, clip } from './_lib/http.js'
 import { listMessages, touchStudent } from './_lib/store.js'
+import { ensureWebhook } from './_lib/telegram.js'
 
 export default async function handler(req, res) {
   if (cors(req, res)) return
+  ensureWebhook(req)
   if (req.method !== 'GET') return json(res, 405, { error: 'GET only' })
   const q = query(req)
   const code = clip(q.get('code'), 12).toUpperCase()

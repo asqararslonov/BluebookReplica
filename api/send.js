@@ -1,10 +1,11 @@
 // POST /api/send { code, name, text, context } -> stores the student's message and forwards it to the mentors.
 import { json, cors, readJson, clip } from './_lib/http.js'
 import { appendMessage, touchStudent, rememberRoute } from './_lib/store.js'
-import { tg, MENTOR_IDS, BOT_TOKEN, newId } from './_lib/telegram.js'
+import { tg, MENTOR_IDS, BOT_TOKEN, newId, ensureWebhook } from './_lib/telegram.js'
 
 export default async function handler(req, res) {
   if (cors(req, res)) return
+  ensureWebhook(req)
   if (req.method !== 'POST') return json(res, 405, { error: 'POST only' })
   const body = await readJson(req)
   const code = clip(body.code, 12).toUpperCase()
