@@ -27,11 +27,48 @@ function cspPlugin() {
   }
 }
 
+// In development there is no public URL for a Telegram webhook, so the dev server long-polls
+// getUpdates itself and feeds each update to the same handler the webhook uses.
+async function startTelegramPolling(server) {
+  const { loadLocalEnv } = await import('./api/_lib/env.js')
+  loadLocalEnv()
+  const token = process.env.TELEGRAM_BOT_TOKEN
+  if (!token || process.env.TELEGRAM_POLLING === '0') return
+  const api = (method, body) => fetch(`https://api.telegram.org/bot${token}/${method}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) }).then((r) => r.json())
+  const me = await api('getMe')
+  if (!me.ok) { server.config.logger.warn(`[telegram] token rejected: ${me.description}`); return }
+  await api('deleteWebhook', { drop_pending_updates: false })
+  server.config.logger.info(`[telegram] polling as @${me.result.username} (mentors: ${process.env.MENTOR_CHAT_IDS || 'default'})`)
+  let offset = 0
+  let stopped = false
+  server.httpServer?.once('close', () => { stopped = true })
+  ;(async () => {
+    while (!stopped) {
+      try {
+        const data = await api('getUpdates', { offset, timeout: 25, allowed_updates: ['message', 'edited_message'] })
+        if (!data.ok) { await new Promise((r) => setTimeout(r, 3000)); continue }
+        for (const update of data.result) {
+          offset = update.update_id + 1
+          const mod = await server.ssrLoadModule('/api/telegram.js')
+          const chunks = []
+          const req = { method: 'POST', url: '/api/telegram', headers: { 'x-telegram-bot-api-secret-token': process.env.TELEGRAM_WEBHOOK_SECRET || '' }, body: update, [Symbol.asyncIterator]: async function* () {} }
+          const res = { statusCode: 200, setHeader() {}, end(body) { chunks.push(body) } }
+          await mod.default(req, res)
+        }
+      } catch (err) {
+        server.config.logger.warn(`[telegram] poll error: ${err.message}`)
+        await new Promise((r) => setTimeout(r, 3000))
+      }
+    }
+  })()
+}
+
 // Serves the Vercel-style api/ functions during `vite dev` so the mentor chat works locally.
 function apiPlugin() {
   return {
     name: 'bluebook-api-dev',
     configureServer(server) {
+      startTelegramPolling(server)
       server.middlewares.use(async (req, res, next) => {
         if (!req.url.startsWith('/api/')) return next()
         const name = req.url.slice(5).split('?')[0].replace(/[^a-z0-9-]/gi, '')

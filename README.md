@@ -41,6 +41,8 @@ During a test, students can press **J** (or the **Chat** tool in the header) to 
 - A plain message (not a reply) → goes to every student active in the last 3 hours.
 - `/students` → list who is online. `/help` → these instructions.
 
+**Local mode:** put `TELEGRAM_BOT_TOKEN` and `MENTOR_CHAT_IDS` in a `.env` file (see `.env.example`; `.env` is git-ignored) and run `npm run dev:web` — the dev server long-polls Telegram itself, so no webhook or public URL is needed while testing on one machine.
+
 **Relay backend** lives in `api/` as Vercel serverless functions (`send`, `messages`, `telegram` webhook, `health`, `setup-webhook`) with Upstash Redis storage (in-memory fallback for local dev). The Vite dev server serves the same functions, so `npm run dev:web` works end to end locally.
 
 ### Deploy to Vercel

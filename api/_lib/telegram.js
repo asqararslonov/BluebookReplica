@@ -1,3 +1,4 @@
+import './env.js'
 // Telegram Bot API helper. The token is never in code: set TELEGRAM_BOT_TOKEN in the environment.
 export const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || ''
 export const MENTOR_IDS = (process.env.MENTOR_CHAT_IDS || '1142658539').split(/[,\s]+/).map((s) => s.trim()).filter(Boolean)

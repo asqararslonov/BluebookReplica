@@ -1,3 +1,4 @@
+import './env.js'
 // Message store: Upstash Redis over REST when configured, otherwise an in-memory fallback
 // (fine for local development; on Vercel each function instance has its own memory).
 const URL = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL
