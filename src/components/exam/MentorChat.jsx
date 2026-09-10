@@ -16,7 +16,8 @@ export default function MentorChat() {
   const listRef = useRef(null)
   const inputRef = useRef(null)
 
-  useEffect(() => { if (open) { listRef.current?.scrollTo({ top: listRef.current.scrollHeight }); inputRef.current?.focus() } }, [open, messages.length])
+  // Opening with J must not focus the input, so the next J press hides the chat instead of typing.
+  useEffect(() => { if (open) listRef.current?.scrollTo({ top: listRef.current.scrollHeight }) }, [open, messages.length])
 
   if (!open) return null
   const context = stage?.type === 'module' && section ? `${section.shortName} · Module ${stage.moduleNumber}${ms ? ` · Q${ms.currentIndex + 1}` : ''}` : ''
@@ -62,7 +63,7 @@ export default function MentorChat() {
           ref={inputRef}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit() } }}
+          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit() } else if (e.key === 'Escape') { e.currentTarget.blur() } }}
           rows={2}
           placeholder="Type your question… (Enter to send)"
           className="bb-input !rounded-xl !px-3 !py-2 !text-[14px]"
@@ -70,7 +71,7 @@ export default function MentorChat() {
         />
         <button type="submit" disabled={!text.trim() || sending} aria-label="Send" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-bb-blue text-white hover:bg-bb-blue-dark disabled:bg-bb-gray-300"><SendHorizontal size={18} /></button>
       </form>
-      <div className="bg-white px-3 pb-2 text-center text-[11px] text-bb-gray-500">Press <b>J</b> to show or hide this chat</div>
+      <div className="bg-white px-3 pb-2 text-center text-[11px] text-bb-gray-500">Press <b>J</b> to show or hide this chat · click the box to type, <b>Esc</b> to leave it</div>
     </aside>
   )
 }
