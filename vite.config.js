@@ -32,8 +32,8 @@ function cspPlugin() {
 async function startTelegramPolling(server) {
   const { loadLocalEnv } = await import('./api/_lib/env.js')
   loadLocalEnv()
-  const token = process.env.TELEGRAM_BOT_TOKEN
-  if (!token || process.env.TELEGRAM_POLLING === '0') return
+  const { BOT_TOKEN: token } = await import('./api/_lib/telegram.js')
+  if (!token || token.startsWith('PASTE_') || process.env.TELEGRAM_POLLING === '0') return
   const api = (method, body) => fetch(`https://api.telegram.org/bot${token}/${method}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) }).then((r) => r.json())
   const me = await api('getMe')
   if (!me.ok) { server.config.logger.warn(`[telegram] token rejected: ${me.description}`); return }

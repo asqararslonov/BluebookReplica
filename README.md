@@ -41,7 +41,7 @@ During a test, students can press **J** (or the **Chat** tool in the header) to 
 - A plain message (not a reply) → goes to every student active in the last 3 hours.
 - `/students` → list who is online. `/help` → these instructions.
 
-**Local mode:** put `TELEGRAM_BOT_TOKEN` and `MENTOR_CHAT_IDS` in a `.env` file (see `.env.example`; `.env` is git-ignored) and run `npm run dev:web` — the dev server long-polls Telegram itself, so no webhook or public URL is needed while testing on one machine.
+**Local mode:** run `npm run dev:web` — the dev server long-polls Telegram itself using the token in `api/_lib/telegram.js`, so no webhook or public URL is needed while testing on one machine.
 
 **Relay backend** lives in `api/` as Vercel serverless functions (`send`, `messages`, `telegram` webhook, `health`, `setup-webhook`) with Upstash Redis storage (in-memory fallback for local dev). The Vite dev server serves the same functions, so `npm run dev:web` works end to end locally.
 
@@ -49,7 +49,7 @@ During a test, students can press **J** (or the **Chat** tool in the header) to 
 
 1. Push this repo to GitHub and import it in Vercel (framework: Other; `vercel.json` sets the build to `npm run build` → `dist`).
 2. In the Vercel project add **Upstash Redis** from the Marketplace (Storage tab). It fills `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (or the `KV_REST_API_*` names) automatically.
-3. Environment variables (see `.env.example`): `TELEGRAM_BOT_TOKEN` (from @BotFather) and `MENTOR_CHAT_IDS` (comma-separated Telegram user ids). `TELEGRAM_WEBHOOK_SECRET` and `ADMIN_KEY` are optional hardening.
+3. No environment variables are needed: the bot token and mentor ids live in `api/_lib/telegram.js` (`BOT_TOKEN`, `MENTOR_IDS`).
 4. Redeploy. The webhook registers itself the first time the app talks to the API; `/api/health` shows `webhook: true` once it has. (`/api/setup-webhook?action=info` shows Telegram's view of it.)
 5. Each mentor must press **Start** on the bot once (Telegram only lets bots message users who started them).
 6. On the students' computers: the web build at the Vercel URL already talks to its own `/api`. For the desktop app, set **Profile & Settings → Chat server URL** to the Vercel URL (or build with `VITE_CHAT_URL`).

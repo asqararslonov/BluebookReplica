@@ -1,11 +1,11 @@
 import './env.js'
-// Telegram Bot API helper. The token is never in code: set TELEGRAM_BOT_TOKEN in the environment.
-export const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || ''
-export const MENTOR_IDS = (process.env.MENTOR_CHAT_IDS || '1142658539').split(/[,\s]+/).map((s) => s.trim()).filter(Boolean)
+// Telegram Bot API helper. Configuration is built in here (no environment variables needed):
+export const BOT_TOKEN = 'PASTE_YOUR_BOT_TOKEN_HERE' // <- your bot token from @BotFather
+export const MENTOR_IDS = ['1142658539'] // Telegram user ids allowed to answer students
 export const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET || ''
 
 export async function tg(method, body) {
-  if (!BOT_TOKEN) throw new Error('TELEGRAM_BOT_TOKEN is not configured')
+  if (!BOT_TOKEN || BOT_TOKEN.startsWith('PASTE_')) throw new Error('Bot token is not set in api/_lib/telegram.js')
   const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
