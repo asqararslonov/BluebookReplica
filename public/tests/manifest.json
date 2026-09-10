@@ -1,0 +1,82 @@
+{
+  "generatedAt": "2026-09-09T15:35:28.486Z",
+  "tests": [
+    {
+      "testId": "sat-practice-01",
+      "title": "SAT Practice 1",
+      "file": "sat-practice-01.json",
+      "description": "Full-length adaptive practice test: two Reading and Writing modules (27 questions, 32 minutes each) and two Math modules (22 questions, 35 minutes each) with a 10-minute break.",
+      "kind": "practice",
+      "number": 1,
+      "questionCount": 98,
+      "durationMinutes": 144,
+      "sizeBytes": 120127
+    },
+    {
+      "testId": "sat-practice-02",
+      "title": "SAT Practice 2",
+      "file": "sat-practice-02.json",
+      "description": "Full-length adaptive practice test: two Reading and Writing modules (27 questions, 32 minutes each) and two Math modules (22 questions, 35 minutes each) with a 10-minute break.",
+      "kind": "practice",
+      "number": 2,
+      "questionCount": 98,
+      "durationMinutes": 144,
+      "sizeBytes": 111379
+    },
+    {
+      "testId": "sat-practice-03",
+      "title": "SAT Practice 3",
+      "file": "sat-practice-03.json",
+      "description": "Full-length adaptive practice test: two Reading and Writing modules (27 questions, 32 minutes each) and two Math modules (22 questions, 35 minutes each) with a 10-minute break.",
+      "kind": "practice",
+      "number": 3,
+      "questionCount": 98,
+      "durationMinutes": 144,
+      "sizeBytes": 115914
+    },
+    {
+      "testId": "sat-practice-04",
+      "title": "SAT Practice 4",
+      "file": "sat-practice-04.json",
+      "description": "Full-length adaptive practice test: two Reading and Writing modules (27 questions, 32 minutes each) and two Math modules (22 questions, 35 minutes each) with a 10-minute break.",
+      "kind": "practice",
+      "number": 4,
+      "questionCount": 98,
+      "durationMinutes": 144,
+      "sizeBytes": 110863
+    },
+    {
+      "testId": "sat-practice-05",
+      "title": "SAT Practice 5",
+      "file": "sat-practice-05.json",
+      "description": "Full-length adaptive practice test: two Reading and Writing modules (27 questions, 32 minutes each) and two Math modules (22 questions, 35 minutes each) with a 10-minute break.",
+      "kind": "practice",
+      "number": 5,
+      "questionCount": 98,
+      "durationMinutes": 144,
+      "sizeBytes": 118816
+    },
+    {
+      "testId": "sat-practice-06",
+      "title": "SAT Practice 6",
+      "file": "sat-practice-06.json",
+      "description": "Full-length adaptive practice test: two Reading and Writing modules (27 questions, 32 minutes each) and two Math modules (22 questions, 35 minutes each) with a 10-minute break.",
+      "kind": "practice",
+      "number": 6,
+      "questionCount": 98,
+      "durationMinutes": 144,
+      "sizeBytes": 115722
+    },
+    {
+      "testId": "test-preview",
+      "title": "Test Preview",
+      "file": "test-preview.json",
+      "description": "A short, unscored walkthrough of the testing tools: a few Reading and Writing questions and a few Math questions.",
+      "kind": "preview",
+      "alwaysAvailable": true,
+      "questionCount": 6,
+      "durationMinutes": 13,
+      "sizeBytes": 4240
+    }
+  ]
+}
