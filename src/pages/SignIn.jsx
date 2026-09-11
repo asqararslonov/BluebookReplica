@@ -48,7 +48,7 @@ export default function SignIn() {
     e.preventDefault()
     setBusy(true)
     await new Promise((r) => setTimeout(r, 900))
-    // Student name is always fixed to Jasurbek Tojiquziyev regardless of login
+    // Student name is always fixed to FIXED_STUDENT_NAME regardless of login
     await saveSettings({ signedIn: true, email: ident, studentName: FIXED_STUDENT_NAME })
     setBusy(false)
     navigate('/', { replace: true })

@@ -14,10 +14,12 @@ export function tzLabel() {
   return `${sign}${String(Math.floor(Math.abs(off))).padStart(2, '0')}`
 }
 
+export const FIXED_STUDENT_NAME = 'Jasurbek Tojiqoziyev'
+
 export const DEFAULT_SETTINGS = {
   signedIn: false,
   email: '',
-  studentName: 'Jasurbek Tojiqoziyev',
+  studentName: FIXED_STUDENT_NAME,
   lockdown: true,
   chat: { enabled: true, url: '' },
   registration: {
@@ -31,8 +33,6 @@ export const DEFAULT_SETTINGS = {
     setupTestId: null,
   },
 }
-
-export const FIXED_STUDENT_NAME = 'Jasurbek Tojiquziyev'
 
 let subscribed = false
 
@@ -57,7 +57,11 @@ export const useLobbyStore = create((set, get) => ({
         bridge.store.get('settings'),
         bridge.system.info(),
       ])
-      set({ manifest, sessions, settings: { ...DEFAULT_SETTINGS, ...(settings || {}), registration: { ...DEFAULT_SETTINGS.registration, ...(settings?.registration || {}) } }, info, loading: false, error: null })
+      // The student name is fixed system-wide: re-assert it on every load so an
+      // older saved value (e.g. from before a spelling fix) never sticks around.
+      const merged = { ...DEFAULT_SETTINGS, ...(settings || {}), studentName: FIXED_STUDENT_NAME, registration: { ...DEFAULT_SETTINGS.registration, ...(settings?.registration || {}) } }
+      set({ manifest, sessions, settings: merged, info, loading: false, error: null })
+      if (settings?.studentName !== FIXED_STUDENT_NAME) await bridge.store.set('settings', merged)
     } catch (err) {
       set({ loading: false, error: err.message || String(err) })
     }
