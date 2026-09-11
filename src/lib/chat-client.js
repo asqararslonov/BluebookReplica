@@ -22,7 +22,13 @@ async function request(base, path, options = {}) {
   try {
     const res = await fetch(`${base}/api/${path}`, { ...options, signal: controller.signal, headers: { 'Content-Type': 'application/json', ...(options.headers || {}) } })
     const data = await res.json().catch(() => ({}))
-    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
+    if (!res.ok) {
+      if (data?.protection?.vercel_auth_enabled || data?.error?.message === 'Protected deployment') {
+        throw new Error('Chat server is locked by Vercel Deployment Protection. Turn off Vercel Authentication in the project settings.')
+      }
+      const detail = typeof data?.error === 'string' ? data.error : data?.error?.message
+      throw new Error(detail || `Chat server error (HTTP ${res.status})`)
+    }
     return data
   } finally {
     clearTimeout(timer)
