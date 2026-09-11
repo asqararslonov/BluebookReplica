@@ -46,7 +46,7 @@ export default function MentorChat() {
 
       <div ref={listRef} className="bb-scroll flex-1 space-y-3 overflow-y-auto bg-bb-gray-50 px-4 py-4">
         {messages.length === 0 && (
-          <p className="text-center text-[13px] leading-relaxed text-bb-gray-500">Ask your mentor about the question you're on. Your message is sent with the section, module and question number so they can see what you're looking at.</p>
+          <p className="text-center text-[13px] leading-relaxed text-bb-gray-500">{context ? "Ask your mentor about the question you're on. Your message is sent with the section, module and question number so they can see what you're looking at." : 'Ask your mentor anything about the SAT or your practice. Replies show up here.'}</p>
         )}
         {messages.map((m) => (
           <div key={m.id} className={`flex flex-col ${m.from === 'student' ? 'items-end' : 'items-start'}`}>

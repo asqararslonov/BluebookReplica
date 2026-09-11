@@ -40,7 +40,7 @@ export async function runDeviceChecks() {
       checks.push({ id: 'battery', label: 'Battery', status: b.charging || pct >= 50 ? 'ok' : pct >= 20 ? 'warn' : 'fail', detail: `${pct}%${b.charging ? ', charging' : ''}` })
     }
   } catch { /* unsupported */ }
-  checks.push({ id: 'lockdown', label: 'Lockdown capability', status: isElectron ? 'ok' : 'warn', detail: isElectron ? 'Kiosk window available' : 'Browser mode — full-screen simulation only' })
+  checks.push({ id: 'fullscreen', label: 'Full-screen test window', status: isElectron ? 'ok' : 'warn', detail: isElectron ? 'Available' : 'Browser mode — uses the browser full-screen' })
   return checks
 }
 
@@ -121,7 +121,7 @@ export default function StartTestDialog({ open, onClose, testEntry, defaultPrese
           </label>
           <label className="flex items-start gap-3">
             <input type="checkbox" className="mt-1 h-4 w-4" checked={lockdown} onChange={(e) => setLockdown(e.target.checked)} />
-            <span className="text-[14px]"><b>Lockdown mode</b> — full-screen kiosk, OS shortcuts blocked, focus loss pauses the test.</span>
+            <span className="text-[14px]"><b>Full-screen test window</b> — the test opens in its own full-screen window.</span>
           </label>
         </div>
       )}

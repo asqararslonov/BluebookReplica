@@ -5,6 +5,7 @@ import bridge from '../../lib/bridge.js'
 import { useLobbyStore } from '../../store/lobby-store.js'
 import Modal from '../ui/Modal.jsx'
 import { BluebookLogo, BUILD_STAMP } from './Brand.jsx'
+import { LobbyChatButton, LobbyChatPanel } from './LobbyChat.jsx'
 
 export default function LobbyShell() {
   const { init, settings, saveSettings, loading, info } = useLobbyStore()
@@ -26,6 +27,8 @@ export default function LobbyShell() {
         <header className="bg-bb-blue-light">
           <div className="mx-auto flex h-[100px] max-w-[1180px] items-center justify-between px-6">
             <NavLink to="/" aria-label="Bluebook home"><BluebookLogo size={31} /></NavLink>
+            <div className="flex items-center gap-6">
+            <LobbyChatButton />
             <div className="relative">
               <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="flex items-center gap-4 text-[20px] font-medium" aria-haspopup="menu" aria-expanded={menuOpen}>
                 {settings.studentName}
@@ -40,11 +43,13 @@ export default function LobbyShell() {
                 </div>
               )}
             </div>
+            </div>
           </div>
         </header>
         <Outlet />
         <div className="h-16" />
       </main>
+      <LobbyChatPanel />
       <div className="pointer-events-none fixed bottom-2 right-3 bg-white/90 px-2 py-1 text-[13px] text-bb-gray-500">{BUILD_STAMP}</div>
 
       <Modal
@@ -63,10 +68,10 @@ export default function LobbyShell() {
           </div>
           <label className="block"><span className="mb-1 block text-[15px] font-bold">Center address (one line per row)</span><textarea rows={3} className="bb-input !py-2.5" value={draft.registration.center.lines.join('\n')} onChange={(e) => setDraft({ ...draft, registration: { ...draft.registration, center: { ...draft.registration.center, lines: e.target.value.split('\n') } } })} /></label>
           <div className="rounded-lg border border-bb-gray-200 p-4">
-            <label className="flex items-start gap-3"><input type="checkbox" className="mt-1 h-4 w-4" checked={draft.chat?.enabled !== false} onChange={(e) => setDraft({ ...draft, chat: { ...(draft.chat || {}), enabled: e.target.checked } })} /><span className="text-[15px]"><b>Mentor chat</b> — lets students message your mentors on Telegram during a test (toggle with the J key or the Chat tool).</span></label>
+            <label className="flex items-start gap-3"><input type="checkbox" className="mt-1 h-4 w-4" checked={draft.chat?.enabled !== false} onChange={(e) => setDraft({ ...draft, chat: { ...(draft.chat || {}), enabled: e.target.checked } })} /><span className="text-[15px]"><b>Mentor chat</b> — message your mentors on Telegram from the dashboard or during a test (J key, or the chat button).</span></label>
             <label className="mt-3 block"><span className="mb-1 block text-[13px] font-bold text-bb-gray-600">Chat server URL (your Vercel deployment; leave blank to use this app's own address)</span><input className="bb-input !py-2 !text-[14px]" placeholder="https://your-app.vercel.app" value={draft.chat?.url || ''} onChange={(e) => setDraft({ ...draft, chat: { ...(draft.chat || {}), url: e.target.value.trim() } })} /></label>
           </div>
-          <label className="flex items-start gap-3"><input type="checkbox" className="mt-1 h-4 w-4" checked={draft.lockdown} onChange={(e) => setDraft({ ...draft, lockdown: e.target.checked })} /><span className="text-[15px]"><b>Lockdown mode</b> — tests open in a full-screen kiosk window with OS shortcuts blocked and focus-loss detection.</span></label>
+          <label className="flex items-start gap-3"><input type="checkbox" className="mt-1 h-4 w-4" checked={draft.lockdown} onChange={(e) => setDraft({ ...draft, lockdown: e.target.checked })} /><span className="text-[15px]"><b>Full-screen test window</b> — tests open in their own full-screen window (you can still switch to other apps).</span></label>
           {info && <div className="rounded-lg bg-bb-gray-50 p-3 text-[13px] text-bb-gray-500">{info.platform}{info.electron ? ` · Electron ${info.electron}` : ' · browser'}{'encryptedStore' in info ? ` · storage ${info.encryptedStore ? 'encrypted' : 'plain'}` : ''}</div>}
         </div>
       </Modal>

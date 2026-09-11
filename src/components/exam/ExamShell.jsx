@@ -10,7 +10,6 @@ import BreakScreen from './BreakScreen.jsx'
 import TransitionScreen from './TransitionScreen.jsx'
 import StartScreen from './StartScreen.jsx'
 import PreviewIntro from './PreviewIntro.jsx'
-import IntegrityOverlay from './IntegrityOverlay.jsx'
 import Calculator from './Calculator.jsx'
 import ReferenceSheet from './ReferenceSheet.jsx'
 import AnnotationPanel from './AnnotationPanel.jsx'
@@ -28,11 +27,6 @@ function useTimer() {
   }, [tick])
 }
 
-function useIntegrity() {
-  const logIntegrity = useExamStore((s) => s.logIntegrity)
-  useEffect(() => bridge.on('integrity', (evt) => logIntegrity(evt)), [logIntegrity])
-}
-
 function useMentorChat() {
   const session = useExamStore((s) => s.session)
   const ensureChatCode = useExamStore((s) => s.ensureChatCode)
@@ -44,11 +38,17 @@ function useMentorChat() {
 
   useEffect(() => {
     let alive = true
-    bridge.store.get('settings').then((settings) => {
+    bridge.store.get('settings').then(async (settings) => {
       if (!alive || !session) return
       const on = settings?.chat?.enabled !== false
       const base = on ? resolveChatBase(settings) : null
-      const code = base ? ensureChatCode(newChatCode) : null
+      // One stable code per student/device, shared by the dashboard chat and every test.
+      let code = null
+      if (base) {
+        code = settings?.chatCode || session.chatCode || newChatCode()
+        if (!settings?.chatCode) await bridge.store.set('settings', { ...(settings || {}), chatCode: code })
+        ensureChatCode(() => code)
+      }
       configure({ base, code, name: session.studentName })
       setEnabled(!!(base && code))
     })
@@ -70,7 +70,7 @@ function useMentorChat() {
       const tag = e.target?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target?.isContentEditable) return
       const phase = useExamStore.getState().session?.phase
-      if (!['module', 'break'].includes(phase) || useExamStore.getState().paused) return
+      if (!['module', 'break'].includes(phase)) return
       e.preventDefault()
       toggle()
     }
@@ -116,12 +116,10 @@ function useShortcuts() {
 
 export default function ExamShell() {
   useTimer()
-  useIntegrity()
   useShortcuts()
   const chatEnabled = useMentorChat()
   const phase = useExamStore((s) => s.session?.phase)
   const view = useExamStore((s) => s.session?.view)
-  const paused = useExamStore((s) => s.paused)
   const calculatorOpen = useExamStore((s) => s.calculatorOpen)
   const referenceOpen = useExamStore((s) => s.referenceOpen)
   const annotationPanel = useExamStore((s) => s.annotationPanel)
@@ -140,7 +138,7 @@ export default function ExamShell() {
 
   if (phase === 'start') return mode === 'preview' ? <PreviewIntro /> : <StartScreen />
   if (phase === 'transition') return <TransitionScreen />
-  if (phase === 'break') return (<><BreakScreen />{chatEnabled && <MentorChat />}{paused && <IntegrityOverlay />}</>)
+  if (phase === 'break') return (<><BreakScreen />{chatEnabled && <MentorChat />}</>)
   if (phase === 'done') return <FinishFlow />
 
   return (
@@ -158,7 +156,6 @@ export default function ExamShell() {
       {referenceOpen && <ReferenceSheet />}
       <ExamDialogs />
       {unscheduledBreak && <UnscheduledBreakOverlay />}
-      {paused && <IntegrityOverlay />}
     </div>
   )
 }

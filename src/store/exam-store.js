@@ -313,8 +313,8 @@ export const useExamStore = create((set, get) => {
     ensureChatCode(generate) {
       const { session } = get()
       if (!session) return null
-      if (session.chatCode) return session.chatCode
       const code = generate()
+      if (session.chatCode === code) return code
       patchSession((s) => ({ ...s, chatCode: code }))
       get().persistNow()
       return code

@@ -26,9 +26,7 @@ function buildMenu({ exam: inExam }) {
   if (isMac) {
     template.push({
       label: app.name,
-      submenu: inExam
-        ? [{ role: 'about' }]
-        : [{ role: 'about' }, { type: 'separator' }, { role: 'hide' }, { role: 'hideOthers' }, { role: 'unhide' }, { type: 'separator' }, { role: 'quit' }],
+      submenu: [{ role: 'about' }, { type: 'separator' }, { role: 'hide' }, { role: 'hideOthers' }, { role: 'unhide' }, { type: 'separator' }, { role: 'quit' }],
     })
   }
   template.push({
@@ -184,4 +182,3 @@ app.on('second-instance', () => {
 })
 
 app.on('window-all-closed', () => app.quit())
-app.on('will-quit', () => { try { require('electron').globalShortcut.unregisterAll() } catch { /* ignore */ } })

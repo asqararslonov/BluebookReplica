@@ -93,20 +93,6 @@ const shim = {
   on,
 }
 
-// Browser-side integrity signals for the shim.
-if (typeof window !== 'undefined' && !window.bluebook) {
-  // In a browser we can only detect tab switches reliably (window blur also fires
-  // for DevTools and embedded panes, so it is not used here; Electron uses OS focus).
-  // Dev toggle for automated UI checks: localStorage.setItem('bluebook-shim-integrity', 'off')
-  const integrityEnabled = () => { try { return localStorage.getItem('bluebook-shim-integrity') !== 'off' } catch { return true } }
-  document.addEventListener('visibilitychange', () => {
-    if (integrityEnabled()) emit('integrity', { type: document.hidden ? 'blur' : 'focus', at: Date.now() })
-  })
-  document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement && integrityEnabled()) emit('integrity', { type: 'fullscreen-exit', at: Date.now() })
-  })
-}
-
 const bridge = typeof window !== 'undefined' && window.bluebook ? window.bluebook : shim
 export const isElectron = !!bridge.isElectron
 export default bridge

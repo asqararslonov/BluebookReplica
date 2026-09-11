@@ -56,10 +56,9 @@ export default function StartScreen() {
           <div className="bb-card mt-4 p-6">
             <h2 className="mb-3 text-[16px] font-bold">Testing environment</h2>
             <div className="grid grid-cols-2 gap-3 text-[14px]">
-              <div className="flex items-center gap-2"><Lock size={16} className="text-bb-gray-500" /> Lockdown: <b>{session.lockdown ? (isElectron ? 'Kiosk mode on' : 'Simulated (full-screen)') : 'Off'}</b></div>
+              <div className="flex items-center gap-2"><Lock size={16} className="text-bb-gray-500" /> Test window: <b>{session.lockdown ? 'Full screen' : 'Windowed'}</b></div>
               <div className="flex items-center gap-2"><Monitor size={16} className="text-bb-gray-500" /> Displays: <b>{sys ? sys.displays.count : '…'}</b></div>
             </div>
-            {sys && sys.displays.count > 1 && <p className="mt-3 rounded bg-bb-red-light px-3 py-2 text-[13px] text-bb-red">More than one display is connected. On test day you must disconnect additional monitors before starting.</p>}
           </div>
 
           <div className="bb-content mt-6 !text-[15px] !leading-relaxed">

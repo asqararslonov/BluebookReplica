@@ -82,10 +82,8 @@ export function ExamDialogs() {
           </label>
           <div className="rounded-md bg-bb-gray-50 p-4 text-[14px]">
             <div className="mb-1 font-semibold">Testing environment</div>
-            <div>Lockdown mode: <b>{lockdown && isElectron ? 'On (kiosk)' : lockdown ? 'Simulated (browser full-screen)' : 'Off (windowed)'}</b></div>
-            {lockdownInfo?.shortcuts && <div>System shortcuts intercepted: <b>{lockdownInfo.shortcuts.registered.length}</b>{lockdownInfo.shortcuts.failed.length ? ` (${lockdownInfo.shortcuts.failed.length} reserved by the OS)` : ''}</div>}
+            <div>Test window: <b>{lockdown ? 'Full screen' : 'Windowed'}</b></div>
             {lockdownInfo?.displays && <div>Displays detected: <b>{lockdownInfo.displays.count}</b></div>}
-            <div>Focus / display incidents this session: <b>{incidents}</b></div>
           </div>
         </div>
       </Modal>
