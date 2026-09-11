@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Navigate, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { User } from 'lucide-react'
 import bridge from '../../lib/bridge.js'
-import { useLobbyStore } from '../../store/lobby-store.js'
+import { useLobbyStore, FIXED_STUDENT_NAME } from '../../store/lobby-store.js'
 import Modal from '../ui/Modal.jsx'
 import { BluebookLogo, BUILD_STAMP } from './Brand.jsx'
 import { LobbyChatPanel } from './LobbyChat.jsx'
@@ -69,10 +69,10 @@ export default function LobbyShell() {
         onClose={() => setProfileOpen(false)}
         title="Profile & Settings"
         width={640}
-        footer={<><button type="button" className="bb-btn-outline !py-2" onClick={() => setProfileOpen(false)}>Cancel</button><button type="button" className="bb-btn-primary !py-2" onClick={async () => { await saveSettings(draft); setProfileOpen(false) }}>Save</button></>}
+        footer={<><button type="button" className="bb-btn-outline !py-2" onClick={() => setProfileOpen(false)}>Cancel</button><button type="button" className="bb-btn-primary !py-2" onClick={async () => { await saveSettings({ ...draft, studentName: FIXED_STUDENT_NAME }); setProfileOpen(false) }}>Save</button></>}
       >
         <div className="space-y-5">
-          <label className="block"><span className="mb-1 block text-[15px] font-bold">Student name</span><input className="bb-input !py-2.5" value={draft.studentName} onChange={(e) => setDraft({ ...draft, studentName: e.target.value })} maxLength={40} /></label>
+          <label className="block"><span className="mb-1 block text-[15px] font-bold">Student name</span><input className="bb-input !py-2.5" value={FIXED_STUDENT_NAME} readOnly /></label>
           <label className="block"><span className="mb-1 block text-[15px] font-bold">Email</span><input className="bb-input !py-2.5" value={draft.email} onChange={(e) => setDraft({ ...draft, email: e.target.value })} /></label>
           <div className="grid grid-cols-2 gap-4">
             <label className="block"><span className="mb-1 block text-[15px] font-bold">Test date</span><input type="date" className="bb-input !py-2.5" value={draft.registration.date.slice(0, 10)} onChange={(e) => setDraft({ ...draft, registration: { ...draft.registration, date: new Date(`${e.target.value}T08:00:00`).toISOString() } })} /></label>

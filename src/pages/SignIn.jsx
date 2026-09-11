@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, Eye, EyeOff, Laptop, Ticket } from 'lucide-react'
-import { useLobbyStore } from '../store/lobby-store.js'
+import { useLobbyStore, FIXED_STUDENT_NAME } from '../store/lobby-store.js'
 import { BluebookLogo, BUILD_STAMP } from '../components/lobby/Brand.jsx'
 import Modal from '../components/ui/Modal.jsx'
 import { runDeviceChecks } from '../components/lobby/StartTestDialog.jsx'
@@ -48,8 +48,8 @@ export default function SignIn() {
     e.preventDefault()
     setBusy(true)
     await new Promise((r) => setTimeout(r, 900))
-    // The display name stays at its default (editable under Profile & Settings); sign-in only records the identifier.
-    await saveSettings({ signedIn: true, email: ident, studentName: settings.studentName || nameFromIdentifier(ident) })
+    // Student name is always fixed to Jasurbek Tojiquziyev regardless of login
+    await saveSettings({ signedIn: true, email: ident, studentName: FIXED_STUDENT_NAME })
     setBusy(false)
     navigate('/', { replace: true })
   }

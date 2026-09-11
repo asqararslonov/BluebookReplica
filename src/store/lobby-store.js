@@ -17,7 +17,7 @@ export function tzLabel() {
 export const DEFAULT_SETTINGS = {
   signedIn: false,
   email: '',
-  studentName: 'Jasurbek Tojiqoziyev',
+  studentName: 'Jasurbek Tojiquziyev',
   lockdown: true,
   chat: { enabled: true, url: '' },
   registration: {
@@ -31,6 +31,8 @@ export const DEFAULT_SETTINGS = {
     setupTestId: null,
   },
 }
+
+export const FIXED_STUDENT_NAME = 'Jasurbek Tojiquziyev'
 
 let subscribed = false
 

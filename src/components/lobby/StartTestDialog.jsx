@@ -4,7 +4,7 @@ import bridge, { isElectron } from '../../lib/bridge.js'
 import Modal from '../ui/Modal.jsx'
 import { normalizeTest } from '../../lib/schema.js'
 import { listPresets, createSession } from '../../lib/session.js'
-import { useLobbyStore } from '../../store/lobby-store.js'
+import { useLobbyStore, FIXED_STUDENT_NAME } from '../../store/lobby-store.js'
 
 /** Creates and launches a session. Returns the session id. */
 export async function launchTest(rawTest, preset, { studentName, lockdown, mode = 'test' }) {
@@ -52,11 +52,9 @@ function StatusIcon({ status }) {
 
 export default function StartTestDialog({ open, onClose, testEntry, defaultPresetId = null }) {
   const settings = useLobbyStore((s) => s.settings)
-  const saveSettings = useLobbyStore((s) => s.saveSettings)
   const [raw, setRaw] = useState(null)
   const [presets, setPresets] = useState([])
   const [presetId, setPresetId] = useState(defaultPresetId)
-  const [studentName, setStudentName] = useState(settings.studentName)
   const [lockdown, setLockdown] = useState(settings.lockdown)
   const [step, setStep] = useState(1)
   const [checks, setChecks] = useState(null)
@@ -65,14 +63,14 @@ export default function StartTestDialog({ open, onClose, testEntry, defaultPrese
 
   useEffect(() => {
     if (!open || !testEntry) return
-    setStep(1); setError(null); setChecks(null); setStudentName(settings.studentName); setLockdown(settings.lockdown)
+    setStep(1); setError(null); setChecks(null); setLockdown(settings.lockdown)
     bridge.tests.load(testEntry.testId).then((r) => {
       setRaw(r)
       const p = listPresets(normalizeTest(r))
       setPresets(p)
       setPresetId(defaultPresetId && p.some((x) => x.id === defaultPresetId) ? defaultPresetId : p[0]?.id)
     }).catch((e) => setError(e.message))
-  }, [open, testEntry, defaultPresetId, settings.studentName, settings.lockdown])
+  }, [open, testEntry, defaultPresetId, settings.lockdown])
 
   const check = async () => { setChecks(null); setStep(2); setChecks(await runDeviceChecks()) }
 
@@ -80,8 +78,7 @@ export default function StartTestDialog({ open, onClose, testEntry, defaultPrese
     setBusy(true); setError(null)
     try {
       const preset = presets.find((p) => p.id === presetId)
-      await saveSettings({ studentName, lockdown })
-      await launchTest(raw, preset, { studentName, lockdown })
+      await launchTest(raw, preset, { studentName: FIXED_STUDENT_NAME, lockdown })
       onClose?.()
     } catch (e) { setError(e.message) } finally { setBusy(false) }
   }
@@ -117,7 +114,7 @@ export default function StartTestDialog({ open, onClose, testEntry, defaultPrese
           </div>
           <label className="block">
             <span className="mb-1 block text-[14px] font-semibold">Student name</span>
-            <input className="bb-input" value={studentName} onChange={(e) => setStudentName(e.target.value)} maxLength={40} />
+            <input className="bb-input" value={FIXED_STUDENT_NAME} readOnly />
           </label>
           <label className="flex items-start gap-3">
             <input type="checkbox" className="mt-1 h-4 w-4" checked={lockdown} onChange={(e) => setLockdown(e.target.checked)} />
