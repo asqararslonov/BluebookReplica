@@ -18,15 +18,17 @@ export function query(req) {
   return new URL(req.url, 'http://localhost').searchParams
 }
 
+const asObject = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : {})
+
 export async function readJson(req) {
-  if (req.body && typeof req.body === 'object') return req.body
-  if (typeof req.body === 'string') { try { return JSON.parse(req.body) } catch { return {} } }
+  if (req.body && typeof req.body === 'object') return asObject(req.body)
+  if (typeof req.body === 'string') { try { return asObject(JSON.parse(req.body)) } catch { return {} } }
   const chunks = []
   for await (const chunk of req) chunks.push(chunk)
   if (chunks.length === 0) return {}
-  try { return JSON.parse(Buffer.concat(chunks).toString('utf8')) } catch { return {} }
+  try { return asObject(JSON.parse(Buffer.concat(chunks).toString('utf8'))) } catch { return {} }
 }
 
 export function clip(value, max) {
-  return String(value ?? '').replace(/\s+/g, ' ').trim().slice(0, max)
+  return String(value ?? '').replace(/\r\n?/g, '\n').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim().slice(0, max)
 }

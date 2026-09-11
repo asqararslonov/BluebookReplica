@@ -14,7 +14,6 @@ export default function MentorChat() {
   const ms = useExamStore((s) => s.currentModuleState())
   const [text, setText] = useState('')
   const listRef = useRef(null)
-  const inputRef = useRef(null)
 
   // Opening with J must not focus the input, so the next J press hides the chat instead of typing.
   useEffect(() => { if (open) listRef.current?.scrollTo({ top: listRef.current.scrollHeight }) }, [open, messages.length])
@@ -60,7 +59,6 @@ export default function MentorChat() {
 
       <form onSubmit={submit} className="flex items-end gap-2 border-t border-bb-gray-200 bg-white p-3">
         <textarea
-          ref={inputRef}
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit() } else if (e.key === 'Escape') { e.currentTarget.blur() } }}

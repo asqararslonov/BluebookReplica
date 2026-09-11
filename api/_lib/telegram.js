@@ -1,4 +1,5 @@
 import './env.js'
+import { createHash } from 'node:crypto'
 // Telegram Bot API helper. Configuration comes from the environment when it is set
 // (Vercel project settings, or a local .env), otherwise from the built-in constants below.
 const BUILT_IN_TOKEN = 'PASTE_YOUR_BOT_TOKEN_HERE' // <- your bot token from @BotFather, or set TELEGRAM_BOT_TOKEN
@@ -7,7 +8,9 @@ const BUILT_IN_MENTORS = '1142658539' // Telegram user ids allowed to answer stu
 const configuredToken = process.env.TELEGRAM_BOT_TOKEN || BUILT_IN_TOKEN
 export const BOT_TOKEN = configuredToken.startsWith('PASTE_') ? '' : configuredToken
 export const MENTOR_IDS = (process.env.MENTOR_CHAT_IDS || BUILT_IN_MENTORS).split(',').map((s) => s.trim()).filter(Boolean)
-export const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET || ''
+// Webhook secret: Telegram sends it with every webhook call so forged updates are rejected.
+// Derived from the bot token when not configured, so no extra setup is needed.
+export const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET || (BOT_TOKEN ? createHash('sha256').update(`bluebook-webhook:${BOT_TOKEN}`).digest('hex').slice(0, 48) : '')
 
 export async function tg(method, body) {
   if (!BOT_TOKEN) throw new Error('Bot token is not set (TELEGRAM_BOT_TOKEN, or BUILT_IN_TOKEN in api/_lib/telegram.js)')
@@ -21,8 +24,8 @@ export async function tg(method, body) {
   return data.result
 }
 
-export function isMentor(chatId) {
-  return MENTOR_IDS.includes(String(chatId))
+export function isMentor(userId) {
+  return MENTOR_IDS.includes(String(userId))
 }
 
 export function newId() {

@@ -49,7 +49,7 @@ During a test, students can press **J** (or the **Chat** tool in the header) to 
 
 1. Push this repo to GitHub and import it in Vercel (framework: Other; `vercel.json` sets the build to `npm run build` → `dist`).
 2. In the Vercel project add **Upstash Redis** from the Marketplace (Storage tab). It fills `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (or the `KV_REST_API_*` names) automatically.
-3. No environment variables are needed: the bot token and mentor ids live in `api/_lib/telegram.js` (`BOT_TOKEN`, `MENTOR_IDS`).
+3. Configure the bot token and mentor ids (`TELEGRAM_BOT_TOKEN` / `MENTOR_CHAT_IDS` in the Vercel project settings, or the constants in `api/_lib/telegram.js`). The webhook secret is derived from the token automatically, so forged updates are rejected without any extra setup.
 4. Redeploy. The webhook registers itself the first time the app talks to the API; `/api/health` shows `webhook: true` once it has. (`/api/setup-webhook?action=info` shows Telegram's view of it.)
 5. Each mentor must press **Start** on the bot once (Telegram only lets bots message users who started them).
 6. On the students' computers: the web build at the Vercel URL already talks to its own `/api`. For the desktop app, set **Profile & Settings → Chat server URL** to the Vercel URL (or build with `VITE_CHAT_URL`).

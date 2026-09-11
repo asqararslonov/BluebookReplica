@@ -35,7 +35,7 @@ export async function listMessages(code, after = 0) {
   let items
   if (usingRedis) items = (await redis('LRANGE', `chat:${code}`, 0, -1)).map((s) => JSON.parse(s))
   else items = mem.chats.get(code) || []
-  return items.filter((m) => m.ts > after)
+  return items.filter((m) => (after ? m.ts >= after : true))
 }
 
 export async function touchStudent(code, info = {}) {

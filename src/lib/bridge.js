@@ -75,7 +75,8 @@ const shim = {
   exam: {
     async start(sessionId, options = {}) {
       if (options.lockdown !== false) {
-        try { await document.documentElement.requestFullscreen?.() } catch { /* user gesture required */ }
+        // Full-screen needs a user gesture and can hang in embedded browsers, so never wait on it for long.
+        try { await Promise.race([document.documentElement.requestFullscreen?.(), new Promise((r) => setTimeout(r, 800))]) } catch { /* user gesture required */ }
       }
       window.location.hash = `#/exam/${sessionId}`
       return { ok: true, lockdown: false, simulated: true, shortcuts: { registered: [], failed: [] }, displays: { count: 1 } }

@@ -23,13 +23,14 @@ export default async function handler(req, res) {
     if (BOT_TOKEN) {
       const header = `#${code} ${name}${context ? ` · ${context}` : ''}`
       for (const chatId of MENTOR_IDS) {
+        let sent = null
         try {
-          const sent = await tg('sendMessage', { chat_id: chatId, text: `${header}\n\n${text}` })
-          await rememberRoute(chatId, sent.message_id, code)
+          sent = await tg('sendMessage', { chat_id: chatId, text: `${header}\n\n${text}` })
           delivered++
         } catch (err) {
           console.error('[send] forward failed', chatId, err.message)
         }
+        if (sent) { try { await rememberRoute(chatId, sent.message_id, code) } catch (err) { console.error('[send] route store failed', err.message) } }
       }
     }
     json(res, 200, { ok: true, message, delivered })
