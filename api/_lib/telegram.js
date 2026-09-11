@@ -1,11 +1,16 @@
 import './env.js'
-// Telegram Bot API helper. Configuration is built in here (no environment variables needed):
-export const BOT_TOKEN = 'PASTE_YOUR_BOT_TOKEN_HERE' // <- your bot token from @BotFather
-export const MENTOR_IDS = ['1142658539'] // Telegram user ids allowed to answer students
+// Telegram Bot API helper. Configuration comes from the environment when it is set
+// (Vercel project settings, or a local .env), otherwise from the built-in constants below.
+const BUILT_IN_TOKEN = 'PASTE_YOUR_BOT_TOKEN_HERE' // <- your bot token from @BotFather, or set TELEGRAM_BOT_TOKEN
+const BUILT_IN_MENTORS = '1142658539' // Telegram user ids allowed to answer students, or set MENTOR_CHAT_IDS
+
+const configuredToken = process.env.TELEGRAM_BOT_TOKEN || BUILT_IN_TOKEN
+export const BOT_TOKEN = configuredToken.startsWith('PASTE_') ? '' : configuredToken
+export const MENTOR_IDS = (process.env.MENTOR_CHAT_IDS || BUILT_IN_MENTORS).split(',').map((s) => s.trim()).filter(Boolean)
 export const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET || ''
 
 export async function tg(method, body) {
-  if (!BOT_TOKEN || BOT_TOKEN.startsWith('PASTE_')) throw new Error('Bot token is not set in api/_lib/telegram.js')
+  if (!BOT_TOKEN) throw new Error('Bot token is not set (TELEGRAM_BOT_TOKEN, or BUILT_IN_TOKEN in api/_lib/telegram.js)')
   const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

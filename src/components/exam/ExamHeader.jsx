@@ -6,7 +6,6 @@ import DirectionsPopover from './DirectionsPopover.jsx'
 import MoreMenu from './MoreMenu.jsx'
 import { passageApi } from './PassagePane.jsx'
 import { useChatStore } from '../../store/chat-store.js'
-import { MessageCircle } from 'lucide-react'
 
 export function useBattery() {
   const [b, setB] = useState(null)
@@ -45,7 +44,6 @@ export default function ExamHeader() {
   const chatCode = useChatStore((s) => s.code)
   const chatOpen = useChatStore((s) => s.open)
   const chatUnread = useChatStore((s) => s.unread)
-  const toggleChat = useChatStore((s) => s.toggle)
 
   if (!stage || !section) return null
   const title = `Section ${sectionIndex + 1}, Module ${stage.moduleNumber}: ${section.name}`
@@ -71,13 +69,12 @@ export default function ExamHeader() {
           )}
           {section.calculator && <ToolButton icon={<CalcIcon size={22} />} label="Calculator" active={calculatorOpen} onClick={() => setCalculatorOpen(!calculatorOpen)} />}
           {section.referenceSheet && <ToolButton icon={<Sigma size={22} />} label="Reference" active={referenceOpen} onClick={() => setReferenceOpen(!referenceOpen)} />}
-          {chatBase && chatCode && (
-            <div className="relative">
-              <ToolButton icon={<MessageCircle size={22} />} label="Chat" active={chatOpen} onClick={toggleChat} extra={{ title: 'Ask a mentor (J)' }} />
-              {chatUnread > 0 && !chatOpen && <span className="absolute right-1 top-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-bb-red px-1 text-[11px] font-bold text-white" aria-label={`${chatUnread} unread`}>{chatUnread}</span>}
-            </div>
-          )}
-          <MoreMenu trigger={(onClick, open) => <ToolButton icon={<MoreVertical size={22} />} label="More" active={open} onClick={onClick} extra={{ 'aria-haspopup': 'menu' }} />} />
+          <div className="relative">
+            <MoreMenu trigger={(onClick, open) => <ToolButton icon={<MoreVertical size={22} />} label="More" active={open} onClick={onClick} extra={{ 'aria-haspopup': 'menu' }} />} />
+            {chatBase && chatCode && chatUnread > 0 && !chatOpen && (
+              <span className="pointer-events-none absolute right-1 top-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-bb-red px-1 text-[11px] font-bold text-white" aria-label={`${chatUnread} unread`}>{chatUnread}</span>
+            )}
+          </div>
         </div>
       </div>
     </header>
