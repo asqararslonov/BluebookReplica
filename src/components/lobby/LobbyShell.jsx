@@ -5,7 +5,9 @@ import bridge from '../../lib/bridge.js'
 import { useLobbyStore } from '../../store/lobby-store.js'
 import Modal from '../ui/Modal.jsx'
 import { BluebookLogo, BUILD_STAMP } from './Brand.jsx'
-import { LobbyChatButton, LobbyChatPanel } from './LobbyChat.jsx'
+import { LobbyChatPanel } from './LobbyChat.jsx'
+import { useChatStore } from '../../store/chat-store.js'
+import { MessageCircle } from 'lucide-react'
 
 export default function LobbyShell() {
   const { init, settings, saveSettings, loading, info } = useLobbyStore()
@@ -13,6 +15,10 @@ export default function LobbyShell() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [draft, setDraft] = useState(settings)
+  const chatAvailable = useChatStore((s) => !!(s.base && s.code))
+  const chatUnread = useChatStore((s) => s.unread)
+  const chatOpen = useChatStore((s) => s.open)
+  const toggleChat = useChatStore((s) => s.toggle)
 
   useEffect(() => { init() }, [init])
   useEffect(() => bridge.on('exam:finished', (p) => { init(); navigate(p?.navigateTo || `/results/${p?.sessionId}`) }), [init, navigate])
@@ -27,22 +33,28 @@ export default function LobbyShell() {
         <header className="bg-bb-blue-light">
           <div className="mx-auto flex h-[100px] max-w-[1180px] items-center justify-between px-6">
             <NavLink to="/" aria-label="Bluebook home"><BluebookLogo size={31} /></NavLink>
-            <div className="flex items-center gap-6">
-            <LobbyChatButton />
             <div className="relative">
               <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="flex items-center gap-4 text-[20px] font-medium" aria-haspopup="menu" aria-expanded={menuOpen}>
                 {settings.studentName}
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-bb-black text-white"><User size={24} /></span>
+                <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-bb-black text-white">
+                  <User size={24} />
+                  {chatAvailable && chatUnread > 0 && !chatOpen && <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-bb-red px-1 text-[11px] font-bold text-white" aria-label={`${chatUnread} unread mentor messages`}>{chatUnread}</span>}
+                </span>
               </button>
               {menuOpen && (
-                <div role="menu" className="bb-fade-in absolute right-0 top-full z-30 mt-2 w-60 rounded-xl border border-bb-gray-200 bg-white py-2 shadow-lg" onMouseLeave={() => setMenuOpen(false)}>
+                <div role="menu" className="bb-fade-in absolute right-0 top-full z-30 mt-2 w-64 rounded-xl border border-bb-gray-200 bg-white py-2 shadow-lg" onMouseLeave={() => setMenuOpen(false)}>
+                  {chatAvailable && (
+                    <button type="button" role="menuitem" className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-[16px] font-medium hover:bg-bb-gray-100" onClick={() => { setMenuOpen(false); toggleChat() }}>
+                      <MessageCircle size={20} className="text-bb-blue" /> Chat with a Mentor
+                      {chatUnread > 0 && !chatOpen && <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-bb-red px-1 text-[11px] font-bold text-white">{chatUnread}</span>}
+                    </button>
+                  )}
                   {[['Home', () => navigate('/')], ['My Practice', () => navigate('/results')], ['Profile & Settings', () => setProfileOpen(true)], ['Sign Out', async () => { await saveSettings({ signedIn: false }); navigate('/signin') }]].map(([label, fn]) => (
                     <button key={label} type="button" role="menuitem" className="block w-full px-5 py-2.5 text-left text-[16px] hover:bg-bb-gray-100" onClick={() => { setMenuOpen(false); fn() }}>{label}</button>
                   ))}
                   {bridge.isElectron && <button type="button" role="menuitem" className="block w-full px-5 py-2.5 text-left text-[16px] text-bb-red hover:bg-bb-gray-100" onClick={() => bridge.system.quit()}>Quit Bluebook</button>}
                 </div>
               )}
-            </div>
             </div>
           </div>
         </header>
