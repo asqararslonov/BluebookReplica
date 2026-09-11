@@ -1,12 +1,16 @@
 // Client for the mentor-chat relay (api/ on Vercel, or the Vite dev middleware).
 
+// Fallback so the desktop app still finds the relay even if a build was made
+// without VITE_CHAT_URL set (Profile & Settings → Chat server URL always overrides this).
+const DEFAULT_CHAT_BASE = 'https://sat-mock-asqararslonov2008s-projects.vercel.app'
+
 export function resolveChatBase(settings) {
   const override = settings?.chat?.url?.trim()
   if (override) return override.replace(/\/+$/, '')
   const env = import.meta.env.VITE_CHAT_URL
   if (env) return String(env).replace(/\/+$/, '')
   if (typeof window !== 'undefined' && /^https?:/.test(window.location.origin)) return window.location.origin
-  return null
+  return DEFAULT_CHAT_BASE
 }
 
 export function newChatCode() {
