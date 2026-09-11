@@ -1,8 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
+  "buildCommand": "echo 'api-only deploy: no frontend build'",
+  "outputDirectory": "public",
   "framework": null,
-  "functions": { "api/*.js": { "maxDuration": 10 } },
-  "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }]
+  "functions": { "api/*.js": { "maxDuration": 10 } }
 }
