@@ -48,7 +48,8 @@ export default function SignIn() {
     e.preventDefault()
     setBusy(true)
     await new Promise((r) => setTimeout(r, 900))
-    await saveSettings({ signedIn: true, email: ident, studentName: nameFromIdentifier(ident) })
+    // The display name stays at its default (editable under Profile & Settings); sign-in only records the identifier.
+    await saveSettings({ signedIn: true, email: ident, studentName: settings.studentName || nameFromIdentifier(ident) })
     setBusy(false)
     navigate('/', { replace: true })
   }
