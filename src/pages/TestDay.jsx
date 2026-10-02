@@ -4,22 +4,16 @@ import {
   HelpCircle,
   Home,
   CheckCircle2,
-  Check,
-  RefreshCw,
-  Volume2,
-  Radio,
   AlertTriangle,
   Sparkles,
-  Lock,
 } from 'lucide-react'
-import bridge from '../lib/bridge.js'
-import { useLobbyStore, FIXED_STUDENT_NAME } from '../store/lobby-store.js'
+import bridge, { isElectron } from '../lib/bridge.js'
+import { useLobbyStore } from '../store/lobby-store.js'
 import { normalizeTest } from '../lib/schema.js'
 import { listPresets } from '../lib/session.js'
-import { launchTest, runDeviceChecks } from '../components/lobby/StartTestDialog.jsx'
+import { launchTest } from '../components/lobby/StartTestDialog.jsx'
 
-const TOTAL_STEPS = 10
-const REQUIRED_PLEDGE = 'I agree to the testing rules'
+const TOTAL_STEPS = 6
 
 export default function TestDay() {
   const navigate = useNavigate()
@@ -29,59 +23,46 @@ export default function TestDay() {
   const { init, manifest, settings } = useLobbyStore()
 
   // 0-indexed:
-  // 0: Step 1 of 10 (Check-In Overview)
-  // 1: Step 2 of 10 (Confirm Your Information)
-  // 2: Step 3 of 10 (Room Code) -> EXACT MATCH TO USER'S SCREENSHOT
-  // 3: Step 4 of 10 (Testing Rules)
-  // 4: Step 5 of 10 (Security Pledge)
-  // 5: Step 6 of 10 (Clear Your Desk)
-  // 6: Step 7 of 10 (Device Check)
-  // 7: Step 8 of 10 (You're Checked In)
-  // 8: Step 9 of 10 (Waiting for Proctor)
-  // 9: Step 10 of 10 (Start Code)
-  const [step, setStep] = useState(2) // Default directly to Step 3 of 10 (Room Code) as requested!
+  // 0 -> Step 1 of 6: Confirm Your Personal Information
+  // 1 -> Step 2 of 6: SAT Testing Rules
+  // 2 -> Step 3 of 6: Review Device Requirements
+  // 3 -> Step 4 of 6: Device Lock Check
+  // 4 -> Step 5 of 6: Room Code (User's reference screenshot)
+  // 5 -> Step 6 of 6: Start Code (Final Unlock & Launch)
+  const [step, setStep] = useState(0) // The very first thing to appear!
 
-  // Step 2 (Step 3 of 10): Room Code
+  // Step 0 (Step 1 of 6): Confirm Personal Information
+  const [infoCorrect, setInfoCorrect] = useState(null) // 'yes' | 'no'
+
+  // Step 1 (Step 2 of 6): SAT Testing Rules
+  const [rulesAccepted, setRulesAccepted] = useState(false)
+
+  // Step 2 (Step 3 of 6): Review Device Requirements
+  const [deviceUse, setDeviceUse] = useState(null) // 'yes' | 'no'
+
+  // Step 3 (Step 4 of 6): Device Lock Check
+  const [lockChecked, setLockChecked] = useState(false)
+  const [checkingLock, setCheckingLock] = useState(false)
+
+  // Step 4 (Step 5 of 6): Room Code (Letters only)
   const [roomBoxes, setRoomBoxes] = useState(['', '', '', '', ''])
   const roomInputRefs = useRef([])
   const defaultRoomCode = 'ABCDE'
 
-  // Step 1: Form & Confirmation
-  const [testId, setTestId] = useState('')
-  const [infoConfirmed, setInfoConfirmed] = useState(true)
-
-  // Step 3 (Step 4 of 10): Testing Rules
-  const [rulesAgreed, setRulesAgreed] = useState(false)
-
-  // Step 4 (Step 5 of 10): Security Pledge
-  const [pledgeText, setPledgeText] = useState('')
-
-  // Step 5 (Step 6 of 10): Clear Desk Checklist
-  const [deskChecks, setDeskChecks] = useState({
-    permitted: false,
-    electronicsOff: false,
-    appsClosed: false,
-  })
-
-  // Step 6 (Step 7 of 10): Device Check
-  const [checks, setChecks] = useState(null)
-  const [deviceChecking, setDeviceChecking] = useState(false)
-
-  // Step 8 (Step 9 of 10): Proctor Announcement
-  const [proctorState, setProctorState] = useState('waiting') // 'waiting' | 'script' | 'announced'
-  const [proctorCode, setProctorCode] = useState(null)
-
-  // Step 9 (Step 10 of 10): Start Code
+  // Step 5 (Step 6 of 6): Start Code (Numbers only)
   const [startBoxes, setStartBoxes] = useState(['', '', '', '', '', ''])
   const startInputRefs = useRef([])
+  const [proctorCode, setProctorCode] = useState('629418')
 
   // Modals & General
+  const [testId, setTestId] = useState('')
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
   const [exitModal, setExitModal] = useState(false)
   const [helpModal, setHelpModal] = useState(false)
 
   const downloaded = manifest.filter((t) => t.kind !== 'preview' && t.cached)
+  const studentDisplayName = settings.studentName || 'Asqar Arslonov'
 
   useEffect(() => {
     init()
@@ -98,38 +79,11 @@ export default function TestDay() {
     }
   }, [downloaded, testId, initialTestId, settings.registration])
 
-  // Run diagnostics when on device check step
+  // Auto-focus inputs on steps 4 and 5
   useEffect(() => {
-    if (step === 6 && !checks) {
-      setDeviceChecking(true)
-      runDeviceChecks().then((res) => {
-        setChecks(res)
-        setDeviceChecking(false)
-      })
-    }
-  }, [step, checks])
-
-  // Proctor simulation when on step 8
-  useEffect(() => {
-    if (step !== 8) return
-    const code = String(Math.floor(100000 + Math.random() * 900000))
-    setProctorCode(code)
-    setProctorState('attendance')
-
-    const t1 = setTimeout(() => setProctorState('script'), 1200)
-    const t2 = setTimeout(() => setProctorState('announced'), 3400)
-
-    return () => {
-      clearTimeout(t1)
-      clearTimeout(t2)
-    }
-  }, [step])
-
-  // Auto focus input on relevant steps
-  useEffect(() => {
-    if (step === 2) {
+    if (step === 4) {
       roomInputRefs.current[0]?.focus()
-    } else if (step === 9) {
+    } else if (step === 5) {
       startInputRefs.current[0]?.focus()
     }
   }, [step])
@@ -139,9 +93,8 @@ export default function TestDay() {
   const isRoomCodeComplete = roomCodeString.length === 5
   const isStartCodeComplete = startCodeString.length === 6
 
-  // ---------- Room Code Keyboard Handlers ----------
+  // ---------- Room Code Keyboard Handlers (Letters only) ----------
   const handleRoomCharChange = (index, val) => {
-    // Only accept letters
     const clean = val.toUpperCase().replace(/[^A-Z]/g, '')
     const updated = [...roomBoxes]
 
@@ -183,7 +136,7 @@ export default function TestDay() {
       roomInputRefs.current[index + 1]?.focus()
     } else if (e.key === 'Enter' && isRoomCodeComplete) {
       e.preventDefault()
-      setStep(3)
+      setStep(5)
     }
   }
 
@@ -205,7 +158,7 @@ export default function TestDay() {
     roomInputRefs.current[4]?.focus()
   }
 
-  // ---------- Start Code Keyboard Handlers ----------
+  // ---------- Start Code Keyboard Handlers (Numbers only) ----------
   const handleStartCharChange = (index, val) => {
     const clean = val.replace(/\D/g, '')
     const updated = [...startBoxes]
@@ -268,10 +221,26 @@ export default function TestDay() {
   }
 
   const fillAnnouncedStartCode = () => {
-    if (!proctorCode) return
     setStartBoxes(proctorCode.split(''))
     setError(null)
     startInputRefs.current[5]?.focus()
+  }
+
+  // Device Lock Simulation
+  const handleCheckDevice = async () => {
+    setCheckingLock(true)
+    try {
+      if (document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen().catch(() => {})
+      }
+      setTimeout(() => {
+        setLockChecked(true)
+        setCheckingLock(false)
+      }, 700)
+    } catch {
+      setLockChecked(true)
+      setCheckingLock(false)
+    }
   }
 
   // ---------- Launch Test ----------
@@ -287,7 +256,7 @@ export default function TestDay() {
       const raw = await bridge.tests.load(targetId)
       const presets = listPresets(normalizeTest(raw))
       await launchTest(raw, presets[0], {
-        studentName: FIXED_STUDENT_NAME,
+        studentName: studentDisplayName,
         lockdown: true,
         mode: 'test-day',
       })
@@ -297,31 +266,20 @@ export default function TestDay() {
     }
   }
 
-  // Validation conditions per step
-  const pledgeMatches = pledgeText.trim().toLowerCase() === REQUIRED_PLEDGE.toLowerCase()
-  const allDeskChecked = deskChecks.permitted && deskChecks.electronicsOff && deskChecks.appsClosed
-
+  // Can the user proceed to the next step?
   const canGoNext = () => {
     switch (step) {
       case 0:
-        return true
+        return infoCorrect === 'yes'
       case 1:
-        return infoConfirmed && !!testId
+        return rulesAccepted
       case 2:
-        return isRoomCodeComplete
+        return deviceUse === 'yes'
       case 3:
-        return rulesAgreed
+        return lockChecked
       case 4:
-        return pledgeMatches
+        return isRoomCodeComplete
       case 5:
-        return allDeskChecked
-      case 6:
-        return !deviceChecking && !!checks
-      case 7:
-        return true
-      case 8:
-        return proctorState === 'announced'
-      case 9:
         return isStartCodeComplete && !busy
       default:
         return true
@@ -329,7 +287,7 @@ export default function TestDay() {
   }
 
   const handleNext = () => {
-    if (step === 9) {
+    if (step === 5) {
       begin()
     } else {
       setStep((s) => Math.min(TOTAL_STEPS - 1, s + 1))
@@ -367,8 +325,8 @@ export default function TestDay() {
         </button>
       </header>
 
-      {/* Main Content Area - Centered exactly as in the user's design */}
-      <main className="bb-scroll flex-1 overflow-y-auto flex flex-col items-center justify-center px-6 py-8">
+      {/* Main Content Area - Centered exactly as in the user's photos */}
+      <main className="bb-scroll flex-1 overflow-y-auto flex flex-col items-center justify-center px-6 py-6">
         <div className="w-full max-w-[760px] text-center flex flex-col items-center justify-center">
 
           {/* Error Banner */}
@@ -379,90 +337,246 @@ export default function TestDay() {
             </div>
           )}
 
-          {/* STEP 1: Overview */}
+          {/* ========================================================= */}
+          {/* STEP 1 OF 6: Confirm Your Personal Information (Photo 1) */}
+          {/* ========================================================= */}
           {step === 0 && (
-            <div className="flex flex-col items-center text-center">
-              <h1 className="text-[38px] font-semibold text-[#1e1e1e] tracking-tight">
-                Check-In
+            <div className="flex flex-col items-center text-center w-full">
+              <h1 className="text-[34px] font-normal text-[#1e1e1e] tracking-tight">
+                Confirm Your Personal Information
               </h1>
-              <p className="mt-4 text-[19px] text-[#2c2c2c]">
-                Welcome, {FIXED_STUDENT_NAME.split(' ')[0]}. Complete check-in to prepare for your exam.
-              </p>
-              <div className="mt-8 w-full max-w-[560px] rounded-2xl border border-gray-200 bg-[#f9fafb] p-6 text-left text-[16px] space-y-3">
-                <div className="flex justify-between border-b border-gray-200 pb-2">
-                  <span className="text-gray-500">Student</span>
-                  <span className="font-semibold text-black">{FIXED_STUDENT_NAME}</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-200 pb-2">
-                  <span className="text-gray-500">Assessment</span>
-                  <span className="font-semibold text-black">Digital SAT</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-200 pb-2">
-                  <span className="text-gray-500">Accommodations</span>
-                  <span className="font-semibold text-black">None — Standard Timing</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Test Center</span>
-                  <span className="font-semibold text-black">{settings.registration?.center?.name || 'Assigned Center'}</span>
-                </div>
-              </div>
-            </div>
-          )}
 
-          {/* STEP 2: Confirm Information */}
-          {step === 1 && (
-            <div className="flex flex-col items-center text-center">
-              <h1 className="text-[38px] font-semibold text-[#1e1e1e] tracking-tight">
-                Confirm Your Information
-              </h1>
-              <p className="mt-4 text-[19px] text-[#2c2c2c]">
-                Make sure your personal details and test form are correct.
-              </p>
-              <div className="mt-8 w-full max-w-[560px] rounded-2xl border border-gray-200 bg-[#f9fafb] p-6 text-left text-[16px] space-y-3">
-                <div className="flex justify-between border-b border-gray-200 pb-2">
-                  <span className="text-gray-500">Full Name</span>
-                  <span className="font-bold text-black">{FIXED_STUDENT_NAME}</span>
+              <div className="mt-8 w-full max-w-[580px] rounded-2xl border border-[#d1d5db] bg-white p-7 text-left shadow-none">
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Left Column: First and Last Name */}
+                  <div>
+                    <div className="text-[15px] font-bold text-black">First and Last Name</div>
+                    <div className="mt-1 text-[15px] text-[#2c2c2c]">{studentDisplayName}</div>
+                  </div>
+
+                  {/* Right Column: Accommodations */}
+                  <div>
+                    <div className="text-[15px] font-bold text-black">Accommodations</div>
+                    <ul className="mt-1 text-[14px] text-[#2c2c2c] list-disc pl-4 space-y-1">
+                      <li>You don't have any approved digital testing accommodations.</li>
+                    </ul>
+                    <p className="mt-2 text-[13px] text-[#4b5563] leading-relaxed">
+                      You may have approved accommodations that don't apply to digital testing.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setHelpModal(true)}
+                      className="mt-1 block text-[13px] text-[#255cd8] underline hover:text-blue-800 text-left"
+                    >
+                      Learn more about accommodations
+                    </button>
+                  </div>
                 </div>
-                <div className="flex justify-between border-b border-gray-200 pb-2">
-                  <span className="text-gray-500">Exam</span>
-                  <span className="font-semibold text-black">Digital SAT</span>
-                </div>
-                <div className="flex justify-between items-center pt-1">
-                  <span className="text-gray-500">Form</span>
-                  <div className="max-w-[280px]">
-                    {downloaded.length === 0 ? (
-                      <span className="text-red-600 text-[14px]">No test downloaded</span>
-                    ) : (
-                      <select
-                        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-[15px] font-medium text-black focus:outline-none focus:border-black"
-                        value={testId}
-                        onChange={(e) => setTestId(e.target.value)}
-                      >
-                        {downloaded.map((t) => (
-                          <option key={t.testId} value={t.testId}>
-                            {t.title}
-                          </option>
-                        ))}
-                      </select>
-                    )}
+
+                {/* Divider */}
+                <div className="my-6 border-t border-[#e5e7eb]" />
+
+                {/* Radio selection */}
+                <div className="text-center">
+                  <div className="text-[15px] font-bold text-black mb-3">
+                    Is this information correct?
+                  </div>
+                  <div className="flex justify-center gap-10">
+                    <label className="flex items-center gap-2 cursor-pointer text-[15px] font-medium text-black">
+                      <input
+                        type="radio"
+                        name="infoCorrect"
+                        checked={infoCorrect === 'yes'}
+                        onChange={() => setInfoCorrect('yes')}
+                        className="w-5 h-5 accent-black cursor-pointer"
+                      />
+                      <span>Yes</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-[15px] font-medium text-black">
+                      <input
+                        type="radio"
+                        name="infoCorrect"
+                        checked={infoCorrect === 'no'}
+                        onChange={() => setInfoCorrect('no')}
+                        className="w-5 h-5 accent-black cursor-pointer"
+                      />
+                      <span>No</span>
+                    </label>
                   </div>
                 </div>
               </div>
-              <label className="mt-6 flex cursor-pointer items-center gap-3 text-[16px] text-[#2c2c2c]">
-                <input
-                  type="checkbox"
-                  className="h-5 w-5 rounded border-gray-300 accent-black"
-                  checked={infoConfirmed}
-                  onChange={(e) => setInfoConfirmed(e.target.checked)}
-                />
-                <span>I confirm that my personal information is accurate.</span>
-              </label>
             </div>
           )}
 
-          {/* STEP 3 (Step 3 of 10): Room Code -> EXACT MATCH TO USER'S SCREENSHOT */}
+          {/* ========================================================= */}
+          {/* STEP 2 OF 6: SAT Testing Rules (Photos 2 & 3)             */}
+          {/* ========================================================= */}
+          {step === 1 && (
+            <div className="flex flex-col items-center text-center w-full">
+              <h1 className="text-[34px] font-normal text-[#1e1e1e] tracking-tight">
+                SAT Testing Rules
+              </h1>
+
+              <div className="mt-8 w-full max-w-[620px] rounded-2xl border border-[#d1d5db] bg-white p-7 text-left shadow-none">
+                <div className="max-h-[350px] overflow-y-auto pr-3 bb-scroll text-[14px] text-[#2c2c2c] leading-relaxed space-y-4">
+                  <div>
+                    <h2 className="font-bold text-black text-[15px] mb-2">Introduction</h2>
+                    <p className="mb-3">
+                      These Testing Rules ("Rules") are a legal contract between you and College Board. They set forth important rules you must follow related to taking the SAT®, referred to as a "Test" or "SAT" in these Rules. Please read them carefully. If you register for a Test on behalf of another (for example, if you are a parent or legal guardian of the test taker), these Rules govern both you and the test taker (collectively, "you").
+                    </p>
+                    <p className="mb-3">
+                      <b>IMPORTANT:</b> Any attempt to gain an unfair advantage on the Test—including through cyber or digital methods, disabling test security features, or using unauthorized smart devices—is strictly prohibited and will result in disciplinary measures and consequences, including score cancellation and other sanctions. College Board uses advanced methods to detect and investigate this behavior.
+                    </p>
+                    <p>
+                      <b>NOTE:</b> See Section 10 for how disagreements between you and College Board will be handled.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h2 className="font-bold text-black text-[15px] mb-2">Section 1. Taking the Test</h2>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>The SAT is a digital test. You will take the Test on an app called Bluebook™.</li>
+                      <li>Your testing device must meet College Board requirements. A list of requirements can be found at bluebook.collegeboard.org.</li>
+                      <li>You will not be permitted to leave the testing room until the Test is concluded for all test takers.</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h2 className="font-bold text-black text-[15px] mb-2">Section 16. Accessibility of These Rules</h2>
+                    <p>
+                      If you have difficulty accessing these Rules, including our policies and requirements, please contact College Board customer service at 866-630-9305 (+1-212-713-8000 internationally) or satsuite.collegeboard.org/contact-us in advance of registering for or taking the Test. We will be happy to provide these Rules in an alternative format or assist you in some other manner as reasonably necessary to enable you to access these Rules.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Checkbox at bottom of card */}
+                <div className="mt-5 border-t border-[#e5e7eb] pt-4">
+                  <label className="flex items-center gap-3 cursor-pointer text-[14px] font-medium text-black">
+                    <input
+                      type="checkbox"
+                      checked={rulesAccepted}
+                      onChange={(e) => setRulesAccepted(e.target.checked)}
+                      className="w-5 h-5 rounded border-gray-400 accent-black cursor-pointer"
+                    />
+                    <span>I have read and I accept these rules.</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* STEP 3 OF 6: Review Device Requirements (Photo 4)         */}
+          {/* ========================================================= */}
           {step === 2 && (
-            <div className="flex flex-col items-center text-center">
+            <div className="flex flex-col items-center text-center w-full">
+              <h1 className="text-[34px] font-normal text-[#1e1e1e] tracking-tight">
+                Review Device Requirements
+              </h1>
+
+              <div className="mt-8 w-full max-w-[620px] rounded-2xl border border-[#d1d5db] bg-white p-7 text-left text-[14px] text-[#2c2c2c] leading-relaxed shadow-none">
+                <p className="mb-4">
+                  You can run Bluebook on a Windows or Mac device, an iPad, or a school-managed Chromebook.
+                </p>
+
+                <p className="font-bold text-black mb-1">Your device:</p>
+                <ul className="list-disc pl-5 space-y-1 mb-4">
+                  <li>
+                    Must stay on for roughly 3 hours. We recommend you bring a power cord or portable charger, but we can't guarantee you'll have access to an outlet.
+                  </li>
+                  <li>Must be able to connect to Wi-Fi.</li>
+                </ul>
+
+                <p className="mb-1">
+                  <b>Windows devices</b> must have at least 1 GB of free space available.
+                </p>
+                <p className="mb-1">
+                  <b>Mac devices</b> must have at least 1 GB of free space available.
+                </p>
+                <p className="mb-1">
+                  <b>iPads</b> must have at least 250 MB of free space available.
+                </p>
+                <p className="mb-5">
+                  <b>School-managed Chromebooks</b> must have at least 1 GB of free space available.
+                </p>
+
+                {/* Divider */}
+                <div className="my-5 border-t border-[#e5e7eb]" />
+
+                {/* Radio Question */}
+                <div className="text-center">
+                  <div className="text-[15px] font-bold text-black mb-3">
+                    Is this the device you'll use on test day?
+                  </div>
+                  <div className="flex justify-center gap-10">
+                    <label className="flex items-center gap-2 cursor-pointer text-[15px] font-medium text-black">
+                      <input
+                        type="radio"
+                        name="deviceUse"
+                        checked={deviceUse === 'yes'}
+                        onChange={() => setDeviceUse('yes')}
+                        className="w-5 h-5 accent-black cursor-pointer"
+                      />
+                      <span>Yes</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-[15px] font-medium text-black">
+                      <input
+                        type="radio"
+                        name="deviceUse"
+                        checked={deviceUse === 'no'}
+                        onChange={() => setDeviceUse('no')}
+                        className="w-5 h-5 accent-black cursor-pointer"
+                      />
+                      <span>No</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* STEP 4 OF 6: Device Lock Check (Photo 5)                  */}
+          {/* ========================================================= */}
+          {step === 3 && (
+            <div className="flex flex-col items-center text-center w-full">
+              <h1 className="text-[34px] font-normal text-[#1e1e1e] tracking-tight">
+                Device Lock Check
+              </h1>
+
+              <div className="mt-8 w-full max-w-[560px] rounded-2xl border border-[#d1d5db] bg-white p-8 text-center shadow-none">
+                <p className="text-[15px] text-[#2c2c2c] mb-2 leading-relaxed">
+                  On test day, Bluebook will go full-screen and you won't be able to access other apps or websites.
+                </p>
+
+                <p className="text-[15px] text-[#2c2c2c] mb-6 leading-relaxed">
+                  Select <span className="font-bold">Check My Device</span> now to make sure this is working.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={handleCheckDevice}
+                  disabled={checkingLock}
+                  className="rounded-full bg-[#255cd8] hover:bg-[#1d4bb8] text-white px-8 py-2.5 text-[15px] font-semibold transition-colors shadow-sm"
+                >
+                  {checkingLock ? 'Checking…' : 'Check My Device'}
+                </button>
+
+                {lockChecked && (
+                  <div className="mt-6 flex items-center justify-center gap-2 text-[15px] font-semibold text-[#137333]">
+                    <CheckCircle2 size={19} className="fill-[#137333] text-white" />
+                    <span>Device lock check successful!</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* STEP 5 OF 6: Room Code (User's First Reference Photo)     */}
+          {/* ========================================================= */}
+          {step === 4 && (
+            <div className="flex flex-col items-center text-center w-full">
               <h1 className="text-[40px] font-normal sm:font-medium text-[#1e1e1e] tracking-tight">
                 Room Code
               </h1>
@@ -475,7 +589,7 @@ export default function TestDay() {
                 The room code contains <span className="font-bold">letters only</span>.
               </p>
 
-              {/* Success Message (shown only when 5 letters are entered) */}
+              {/* Success message (shown when 5 letters entered) */}
               {isRoomCodeComplete ? (
                 <div className="mt-5 flex items-center justify-center gap-2 text-[16px] font-semibold text-[#137333] transition-opacity duration-200">
                   <CheckCircle2 size={19} className="fill-[#137333] text-white" />
@@ -508,9 +622,9 @@ export default function TestDay() {
                 ))}
               </div>
 
-              {/* Subtle helper chip to auto-fill sample code */}
+              {/* Subtle click-to-fill helper for test simulation */}
               <div className="mt-6 flex items-center justify-center gap-2 text-[13px] text-gray-400">
-                <span>Code on the board:</span>
+                <span>Code on board:</span>
                 <button
                   type="button"
                   onClick={fillSimulatedRoomCode}
@@ -522,305 +636,28 @@ export default function TestDay() {
             </div>
           )}
 
-          {/* STEP 4: Testing Rules */}
-          {step === 3 && (
-            <div className="flex flex-col items-center text-center">
-              <h1 className="text-[38px] font-semibold text-[#1e1e1e] tracking-tight">
-                Testing Rules
-              </h1>
-              <p className="mt-4 text-[19px] text-[#2c2c2c]">
-                Review the testing rules before continuing.
-              </p>
-              <div className="mt-8 max-h-[300px] w-full max-w-[620px] space-y-4 overflow-y-auto rounded-2xl border border-gray-200 bg-[#f9fafb] p-6 text-left text-[15px] leading-relaxed text-[#374151] bb-scroll">
-                <p>
-                  <b>1. Prohibited Devices:</b> All cell phones, smartwatches, wireless earbuds, and unauthorized electronics must be powered completely off and stored away.
-                </p>
-                <p>
-                  <b>2. Sole Application:</b> Bluebook must be the only open application on your device. Attempting to switch apps or access external tools will invalidate your test.
-                </p>
-                <p>
-                  <b>3. Scratch Paper:</b> You must write your full legal name on the top of each sheet of scratch paper. All sheets will be collected at the end of testing.
-                </p>
-                <p>
-                  <b>4. Individual Timing:</b> Each module is timed separately. You cannot return to a module once time has expired.
-                </p>
-                <p>
-                  <b>5. Confidentiality:</b> You agree not to copy, record, share, or discuss any test questions or answers.
-                </p>
-              </div>
-              <label className="mt-6 flex cursor-pointer items-center gap-3 text-[16px] text-[#2c2c2c]">
-                <input
-                  type="checkbox"
-                  className="h-5 w-5 rounded border-gray-300 accent-black"
-                  checked={rulesAgreed}
-                  onChange={(e) => setRulesAgreed(e.target.checked)}
-                />
-                <span>I have read and agree to the Testing Rules.</span>
-              </label>
-            </div>
-          )}
-
-          {/* STEP 5: Security Pledge */}
-          {step === 4 && (
-            <div className="flex flex-col items-center text-center">
-              <h1 className="text-[38px] font-semibold text-[#1e1e1e] tracking-tight">
-                Security Pledge
-              </h1>
-              <p className="mt-4 text-[19px] text-[#2c2c2c]">
-                Type the following statement to verify your agreement:
-              </p>
-              <div className="mt-4 rounded-xl border border-gray-300 bg-gray-50 px-4 py-2 text-[16px] font-semibold text-black">
-                "{REQUIRED_PLEDGE}"
-              </div>
-              <div className="mt-5 w-full max-w-[480px]">
-                <input
-                  type="text"
-                  value={pledgeText}
-                  onChange={(e) => setPledgeText(e.target.value)}
-                  placeholder={REQUIRED_PLEDGE}
-                  className="w-full rounded-xl border-[1.5px] border-gray-400 bg-white px-4 py-3 text-center text-[17px] text-black outline-none focus:border-black"
-                />
-                <button
-                  type="button"
-                  onClick={() => setPledgeText(REQUIRED_PLEDGE)}
-                  className="mt-3 text-[14px] font-semibold text-[#255cd8] underline hover:text-blue-800"
-                >
-                  Auto-fill statement
-                </button>
-              </div>
-              {pledgeMatches && (
-                <div className="mt-5 flex items-center justify-center gap-2 text-[16px] font-semibold text-[#137333]">
-                  <CheckCircle2 size={19} className="fill-[#137333] text-white" />
-                  <span>Statement verified. Click Next to continue.</span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* STEP 6: Clear Your Desk */}
+          {/* ========================================================= */}
+          {/* STEP 6 OF 6: Start Code (Final Unlock & Launch)           */}
+          {/* ========================================================= */}
           {step === 5 && (
-            <div className="flex flex-col items-center text-center">
-              <h1 className="text-[38px] font-semibold text-[#1e1e1e] tracking-tight">
-                Clear Your Desk
-              </h1>
-              <p className="mt-4 text-[19px] text-[#2c2c2c]">
-                Before your proctor begins the instructions, prepare your desk.
-              </p>
-              <div className="mt-8 w-full max-w-[600px] space-y-3 text-left">
-                {[
-                  {
-                    key: 'permitted',
-                    text: 'Only permitted items (device, charger, mouse, pencil/pen, and provided scratch paper) are on your desk.',
-                  },
-                  {
-                    key: 'electronicsOff',
-                    text: 'All cell phones, smartwatches, and extra electronics are powered completely off and placed in your bag.',
-                  },
-                  {
-                    key: 'appsClosed',
-                    text: 'All other applications and background software on this device have been closed.',
-                  },
-                ].map((item) => (
-                  <label
-                    key={item.key}
-                    className="flex cursor-pointer items-start gap-4 rounded-xl border border-gray-200 bg-[#f9fafb] p-4 text-[16px] text-[#374151] hover:bg-gray-50"
-                  >
-                    <input
-                      type="checkbox"
-                      className="mt-1 h-5 w-5 rounded border-gray-300 accent-black shrink-0"
-                      checked={deskChecks[item.key]}
-                      onChange={(e) =>
-                        setDeskChecks({ ...deskChecks, [item.key]: e.target.checked })
-                      }
-                    />
-                    <span>{item.text}</span>
-                  </label>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  setDeskChecks({ permitted: true, electronicsOff: true, appsClosed: true })
-                }
-                className="mt-4 text-[14px] font-medium text-gray-500 underline hover:text-black"
-              >
-                Select all
-              </button>
-            </div>
-          )}
-
-          {/* STEP 7: Device Check */}
-          {step === 6 && (
-            <div className="flex flex-col items-center text-center">
-              <h1 className="text-[38px] font-semibold text-[#1e1e1e] tracking-tight">
-                Device Check
-              </h1>
-              <p className="mt-4 text-[19px] text-[#2c2c2c]">
-                Bluebook is verifying your device meets test day requirements.
-              </p>
-
-              {deviceChecking || !checks ? (
-                <div className="my-10 flex flex-col items-center gap-3">
-                  <div className="bb-spinner" />
-                  <p className="text-[15px] text-gray-500">Checking device diagnostics…</p>
-                </div>
-              ) : (
-                <div className="mt-8 w-full max-w-[560px] divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-white text-left">
-                  {checks.map((c) => (
-                    <div key={c.id} className="flex items-center justify-between p-3.5 px-5">
-                      <div className="flex items-center gap-3">
-                        <Check size={18} className="text-[#137333]" strokeWidth={3} />
-                        <div>
-                          <div className="text-[15px] font-bold text-black">{c.label}</div>
-                          <div className="text-[13px] text-gray-500">{c.detail}</div>
-                        </div>
-                      </div>
-                      <span className="rounded-full bg-green-50 px-2.5 py-0.5 text-[12px] font-semibold text-[#137333]">
-                        Passed
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <div className="mt-5 flex items-center gap-2 text-[14px] text-gray-500">
-                <button
-                  type="button"
-                  onClick={async () => {
-                    setDeviceChecking(true)
-                    setChecks(null)
-                    setChecks(await runDeviceChecks())
-                    setDeviceChecking(false)
-                  }}
-                  className="flex items-center gap-1 font-semibold underline hover:text-black"
-                >
-                  <RefreshCw size={14} /> Re-run diagnostics
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 8: You're Checked In */}
-          {step === 7 && (
-            <div className="flex flex-col items-center text-center">
-              <h1 className="text-[38px] font-semibold text-[#1e1e1e] tracking-tight">
-                You're Checked In
-              </h1>
-              <p className="mt-4 text-[19px] text-[#2c2c2c]">
-                Your check-in has been submitted to your proctor.
-              </p>
-              <div className="mt-8 w-full max-w-[520px] rounded-2xl border border-gray-200 bg-[#f9fafb] p-6 text-left text-[16px] space-y-3">
-                <div className="flex justify-between border-b border-gray-200 pb-2">
-                  <span className="text-gray-500">Room</span>
-                  <span className="font-mono font-bold text-black">{roomCodeString || defaultRoomCode}</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-200 pb-2">
-                  <span className="text-gray-500">Student</span>
-                  <span className="font-semibold text-black">{FIXED_STUDENT_NAME}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-500">Status</span>
-                  <span className="inline-flex items-center gap-1.5 font-bold text-[#137333]">
-                    <CheckCircle2 size={16} className="fill-[#137333] text-white" />
-                    Present in Test Day Toolkit
-                  </span>
-                </div>
-              </div>
-              <p className="mt-6 text-[16px] text-gray-500">
-                Click Next to proceed to the proctor instruction screen.
-              </p>
-            </div>
-          )}
-
-          {/* STEP 9: Waiting for Proctor */}
-          {step === 8 && (
-            <div className="flex flex-col items-center text-center">
-              <h1 className="text-[38px] font-semibold text-[#1e1e1e] tracking-tight">
-                Waiting for Proctor
-              </h1>
-              <p className="mt-4 text-[19px] text-[#2c2c2c]">
-                Stay on this screen. Your proctor will read the test instructions aloud.
-              </p>
-
-              <div className="mt-8 w-full max-w-[580px] rounded-2xl border border-gray-200 bg-[#f9fafb] p-6 text-left">
-                {proctorState === 'attendance' && (
-                  <div className="flex items-center gap-3 py-3 text-[16px] text-gray-600">
-                    <div className="bb-spinner !h-5 !w-5" />
-                    <span>Proctor is finalizing room attendance…</span>
-                  </div>
-                )}
-
-                {proctorState === 'script' && (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-[14px] font-bold text-[#255cd8]">
-                      <Volume2 size={18} className="animate-pulse" />
-                      <span>Proctor is reading instructions to the room:</span>
-                    </div>
-                    <blockquote className="border-l-4 border-[#255cd8] pl-3 text-[15px] italic text-gray-700">
-                      "Welcome to the digital SAT. Ensure all bags are under your desk and cell phones are turned completely off. I will now announce the 6-digit start code..."
-                    </blockquote>
-                  </div>
-                )}
-
-                {proctorState === 'announced' && (
-                  <div className="space-y-3">
-                    <div className="text-[13px] font-bold uppercase tracking-wider text-gray-500">
-                      Proctor announcement:
-                    </div>
-                    <div className="flex items-center justify-between rounded-xl bg-white p-4 border border-gray-200">
-                      <div>
-                        <div className="text-[13px] text-gray-500">Start Code:</div>
-                        <div className="font-mono text-[32px] font-bold tracking-[0.2em] text-black">
-                          {proctorCode}
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setStartBoxes(proctorCode.split(''))
-                          setStep(9)
-                        }}
-                        className="rounded-full bg-[#fedb00] px-5 py-2 text-[14px] font-bold text-black hover:bg-[#e9c800]"
-                      >
-                        Use Code →
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {proctorState !== 'announced' && (
-                <button
-                  type="button"
-                  onClick={() => setProctorState('announced')}
-                  className="mt-4 text-[13px] text-gray-400 underline hover:text-black"
-                >
-                  Skip wait & reveal start code
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* STEP 10: Start Code (6 digits) */}
-          {step === 9 && (
-            <div className="flex flex-col items-center text-center">
+            <div className="flex flex-col items-center text-center w-full">
               <h1 className="text-[40px] font-normal sm:font-medium text-[#1e1e1e] tracking-tight">
                 Start Code
               </h1>
 
               <p className="mt-4 text-[19px] sm:text-[20px] text-[#2c2c2c]">
-                Enter your start code now to begin testing.
+                Enter the start code provided by your proctor to begin testing.
               </p>
 
               <p className="mt-3 text-[19px] sm:text-[20px] text-[#2c2c2c]">
                 The start code contains <span className="font-bold">numbers only</span>.
               </p>
 
-              {/* Success Message when 6 digits entered */}
+              {/* Success message when 6 digits entered */}
               {isStartCodeComplete ? (
                 <div className="mt-5 flex items-center justify-center gap-2 text-[16px] font-semibold text-[#137333]">
                   <CheckCircle2 size={19} className="fill-[#137333] text-white" />
-                  <span>Success! Click the Start Test button to begin your exam.</span>
+                  <span>Success! Click the Start Test button to enter lockdown mode.</span>
                 </div>
               ) : (
                 <div className="h-[28px] mt-5" aria-hidden="true" />
@@ -872,25 +709,24 @@ export default function TestDay() {
                 </div>
               </div>
 
-              {proctorCode && (
-                <div className="mt-6 flex items-center justify-center gap-2 text-[13px] text-gray-400">
-                  <span>Announced code:</span>
-                  <button
-                    type="button"
-                    onClick={fillAnnouncedStartCode}
-                    className="font-bold underline hover:text-black transition-colors"
-                  >
-                    {proctorCode} (Click to fill)
-                  </button>
-                </div>
-              )}
+              {/* Proctor code fill helper */}
+              <div className="mt-6 flex items-center justify-center gap-2 text-[13px] text-gray-400">
+                <span>Announced code:</span>
+                <button
+                  type="button"
+                  onClick={fillAnnouncedStartCode}
+                  className="font-bold underline hover:text-black transition-colors"
+                >
+                  {proctorCode} (Click to fill)
+                </button>
+              </div>
             </div>
           )}
 
         </div>
       </main>
 
-      {/* Bottom Protocol Footer - Exact match to user's screenshot */}
+      {/* Bottom Protocol Footer - Exact match to user's photos */}
       <footer className="h-[92px] shrink-0 border-t border-[#d1d5db] bg-white flex items-center justify-between px-8 sm:px-12">
         {/* Back Button (pill, white bg, thin black border) */}
         <button
@@ -902,7 +738,7 @@ export default function TestDay() {
           Back
         </button>
 
-        {/* Center: Step X of 10 + Progress Bar */}
+        {/* Center: Step X of 6 + Progress Bar */}
         <div className="flex flex-col items-center gap-1.5">
           <span className="text-[15px] font-normal text-[#2c2c2c]">
             Step {step + 1} of {TOTAL_STEPS}
@@ -927,7 +763,7 @@ export default function TestDay() {
               <span className="bb-spinner !h-4 !w-4 !border-2" />
               <span>Starting…</span>
             </span>
-          ) : step === 9 ? (
+          ) : step === 5 ? (
             <span>Start Test</span>
           ) : (
             <span>Next</span>
@@ -967,12 +803,12 @@ export default function TestDay() {
       {helpModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-[2px]">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <h2 className="text-[20px] font-bold text-black">Need Help?</h2>
+            <h2 className="text-[20px] font-bold text-black">Help & Instructions</h2>
             <p className="mt-3 text-[15px] leading-relaxed text-gray-600">
-              Your proctor writes the 5-letter room code on the whiteboard at the front of your testing room.
+              Follow the instructions on each screen to verify your information and configure your device for test day.
             </p>
             <p className="mt-2 text-[15px] leading-relaxed text-gray-600">
-              If you don't see the code or need assistance, please raise your hand to speak with your proctor.
+              If you have any questions or difficulties, raise your hand to speak with your proctor.
             </p>
             <div className="mt-6 text-right">
               <button
