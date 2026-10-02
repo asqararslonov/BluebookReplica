@@ -415,8 +415,8 @@ export default function TestDay() {
       </header>
 
       {/* Main Content Area */}
-      <main className="bb-scroll flex-1 overflow-y-auto flex flex-col items-center justify-center px-6 py-6">
-        <div className="w-full max-w-[760px] text-center flex flex-col items-center justify-center">
+      <main className="bb-scroll flex-1 overflow-y-auto flex flex-col items-center justify-center px-6 sm:px-12 py-6">
+        <div className="w-full max-w-[1120px] text-center flex flex-col items-center justify-center">
 
           {/* Error Banner */}
           {error && (
@@ -435,31 +435,31 @@ export default function TestDay() {
               {/* STEP 1 OF 6: Confirm Your Personal Information (Photo 1) */}
               {step === 0 && (
                 <div className="flex flex-col items-center text-center w-full">
-                  <h1 className="text-[34px] font-normal text-[#1e1e1e] tracking-tight">
+                  <h1 className="text-[36px] sm:text-[40px] font-normal text-[#1e1e1e] tracking-tight">
                     Confirm Your Personal Information
                   </h1>
 
-                  <div className="mt-8 w-full max-w-[580px] rounded-2xl border border-[#d1d5db] bg-white p-7 text-left shadow-none">
-                    <div className="grid grid-cols-2 gap-6">
+                  <div className="mt-8 w-full max-w-[1000px] rounded-2xl border border-[#d1d5db] bg-white p-9 sm:p-12 text-left shadow-none">
+                    <div className="grid grid-cols-2 gap-8">
                       {/* Left Column: First and Last Name */}
                       <div>
-                        <div className="text-[15px] font-bold text-black">First and Last Name</div>
-                        <div className="mt-1 text-[15px] text-[#2c2c2c]">{studentDisplayName}</div>
+                        <div className="text-[17px] font-bold text-black">First and Last Name</div>
+                        <div className="mt-1.5 text-[17px] text-[#2c2c2c]">{studentDisplayName}</div>
                       </div>
 
                       {/* Right Column: Accommodations */}
                       <div>
-                        <div className="text-[15px] font-bold text-black">Accommodations</div>
-                        <ul className="mt-1 text-[14px] text-[#2c2c2c] list-disc pl-4 space-y-1">
+                        <div className="text-[17px] font-bold text-black">Accommodations</div>
+                        <ul className="mt-1.5 text-[15px] text-[#2c2c2c] list-disc pl-5 space-y-1">
                           <li>You don't have any approved digital testing accommodations.</li>
                         </ul>
-                        <p className="mt-2 text-[13px] text-[#4b5563] leading-relaxed">
+                        <p className="mt-2.5 text-[14px] text-[#4b5563] leading-relaxed">
                           You may have approved accommodations that don't apply to digital testing.
                         </p>
                         <button
                           type="button"
                           onClick={() => setHelpModal(true)}
-                          className="mt-1 block text-[13px] text-[#255cd8] underline hover:text-blue-800 text-left"
+                          className="mt-1.5 block text-[14px] text-[#255cd8] underline hover:text-blue-800 text-left"
                         >
                           Learn more about accommodations
                         </button>
@@ -511,15 +511,15 @@ export default function TestDay() {
               {/* STEP 2 OF 6: SAT Testing Rules (Photos 2 & 3) */}
               {step === 1 && (
                 <div className="flex flex-col items-center text-center w-full">
-                  <h1 className="text-[34px] font-normal text-[#1e1e1e] tracking-tight">
+                  <h1 className="text-[36px] sm:text-[40px] font-normal text-[#1e1e1e] tracking-tight">
                     SAT Testing Rules
                   </h1>
 
-                  <div className="mt-6 w-full max-w-[620px] rounded-2xl border border-[#d1d5db] bg-white p-7 text-left shadow-none">
-                    <div className="bb-scroll h-[300px] overflow-y-auto pr-3 space-y-4 text-[14px] leading-relaxed text-[#2c2c2c]">
+                  <div className="mt-7 w-full max-w-[1040px] rounded-2xl border border-[#d1d5db] bg-white p-8 sm:p-11 text-left shadow-none">
+                    <div className="bb-scroll h-[460px] sm:h-[490px] overflow-y-auto pr-5 space-y-5 text-[15.5px] sm:text-[16px] leading-[1.65] text-[#2c2c2c]">
                       <div>
-                        <h2 className="font-bold text-[15px] text-black">Introduction</h2>
-                        <p className="mt-1">
+                        <h2 className="font-bold text-[17px] text-black">Introduction</h2>
+                        <p className="mt-1.5">
                           These Testing Rules ("Rules") are a legal contract between you and College Board.
                           They set forth important rules you must follow related to taking the SAT®,
                           referred to as a "Test" or "SAT" in these Rules. Please read them carefully.
@@ -529,7 +529,7 @@ export default function TestDay() {
                         </p>
                       </div>
 
-                      <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-[13px] text-[#78350f]">
+                      <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 text-[14.5px] text-[#78350f] leading-relaxed">
                         <span className="font-bold">IMPORTANT:</span> Any attempt to gain an unfair advantage
                         on the Test—including through cyber or digital methods, disabling test security features,
                         or using unauthorized smart devices—is strictly prohibited and will result in disciplinary
@@ -537,14 +537,14 @@ export default function TestDay() {
                         uses advanced methods to detect and investigate this behavior.
                       </div>
 
-                      <p className="text-[13px] text-[#4b5563]">
+                      <p className="text-[14px] text-[#4b5563]">
                         <span className="font-bold">NOTE:</span> See Section 10 for how disagreements between you
                         and College Board will be handled.
                       </p>
 
                       <div>
-                        <h2 className="font-bold text-[15px] text-black">Section 1. Taking the Test</h2>
-                        <ul className="mt-1 list-disc pl-5 space-y-1">
+                        <h2 className="font-bold text-[17px] text-black">Section 1. Taking the Test</h2>
+                        <ul className="mt-2 list-disc pl-5 space-y-1.5">
                           <li>The SAT is a digital test. You will take the Test on an app called Bluebook™.</li>
                           <li>Your testing device must meet College Board requirements. A list of approved devices can be found at bluebook.collegeboard.org.</li>
                           <li>You must keep your device locked down in the Bluebook app throughout testing.</li>
@@ -553,8 +553,19 @@ export default function TestDay() {
                       </div>
 
                       <div>
-                        <h2 className="font-bold text-[15px] text-black">Section 16. Accessibility of These Rules</h2>
-                        <p className="mt-1">
+                        <h2 className="font-bold text-[17px] text-black">Section 10. Sanctioned Persons & Legal Compliance</h2>
+                        <p className="mt-1.5 text-[14.5px]">
+                          College Board complies with U.S. economic sanctions, laws, and regulations and is prohibited
+                          from providing testing services to, or accepting registrations from, persons residing in
+                          certain areas or designated by the U.S. government as Specially Designated Nationals and Blocked
+                          Persons (collectively, "Sanctioned Persons"), unless specifically licensed or otherwise authorized
+                          by the U.S. government.
+                        </p>
+                      </div>
+
+                      <div>
+                        <h2 className="font-bold text-[17px] text-black">Section 16. Accessibility of These Rules</h2>
+                        <p className="mt-1.5">
                           If you have difficulty accessing these Rules, including our policies and requirements,
                           please contact College Board customer service at 866-630-9305 (+1-212-713-8000 internationally)
                           or satsuite.collegeboard.org/contact-us in advance of registering for or taking the Test.
@@ -564,16 +575,16 @@ export default function TestDay() {
                       </div>
                     </div>
 
-                    <div className="my-5 border-t border-[#e5e7eb]" />
+                    <div className="my-6 border-t border-[#e5e7eb]" />
 
                     <label className="flex items-center gap-3 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={rulesAccepted}
                         onChange={(e) => setRulesAccepted(e.target.checked)}
-                        className="w-4 h-4 accent-black text-black rounded cursor-pointer"
+                        className="w-5 h-5 accent-black text-black rounded cursor-pointer"
                       />
-                      <span className="text-[15px] font-medium text-black">
+                      <span className="text-[16px] font-medium text-black">
                         I have read and I accept these rules.
                       </span>
                     </label>
@@ -584,18 +595,18 @@ export default function TestDay() {
               {/* STEP 3 OF 6: Review Device Requirements (Photo 4) */}
               {step === 2 && (
                 <div className="flex flex-col items-center text-center w-full">
-                  <h1 className="text-[34px] font-normal text-[#1e1e1e] tracking-tight">
+                  <h1 className="text-[36px] sm:text-[40px] font-normal text-[#1e1e1e] tracking-tight">
                     Review Device Requirements
                   </h1>
 
-                  <div className="mt-6 w-full max-w-[620px] rounded-2xl border border-[#d1d5db] bg-white p-7 text-left shadow-none">
-                    <p className="text-[15px] text-[#2c2c2c] leading-relaxed">
+                  <div className="mt-7 w-full max-w-[1000px] rounded-2xl border border-[#d1d5db] bg-white p-9 sm:p-12 text-left shadow-none">
+                    <p className="text-[16px] text-[#2c2c2c] leading-relaxed">
                       You can run Bluebook on a Windows or Mac device, an iPad, or a school-managed Chromebook.
                     </p>
 
-                    <div className="mt-4">
-                      <div className="text-[15px] font-bold text-black">Your device:</div>
-                      <ul className="mt-1.5 list-disc pl-5 space-y-1.5 text-[14px] text-[#2c2c2c]">
+                    <div className="mt-5">
+                      <div className="text-[16px] font-bold text-black">Your device:</div>
+                      <ul className="mt-2 list-disc pl-5 space-y-2 text-[15px] text-[#2c2c2c]">
                         <li>
                           Must stay on for roughly 3 hours. We recommend you bring a power cord or portable charger,
                           but we can't guarantee you'll have access to an outlet.
@@ -604,21 +615,21 @@ export default function TestDay() {
                       </ul>
                     </div>
 
-                    <div className="mt-4 space-y-1 text-[13px] text-[#4b5563]">
+                    <div className="mt-5 space-y-1.5 text-[14px] text-[#4b5563]">
                       <div>Windows devices must have at least 1 GB of free space available.</div>
                       <div>Mac devices must have at least 1 GB of free space available.</div>
                       <div>iPads must have at least 250 MB of free space available.</div>
                       <div>School-managed Chromebooks must have at least 1 GB of free space available.</div>
                     </div>
 
-                    <div className="my-6 border-t border-[#e5e7eb]" />
+                    <div className="my-7 border-t border-[#e5e7eb]" />
 
                     <div className="text-center">
-                      <div className="text-[15px] font-bold text-black mb-3">
+                      <div className="text-[16px] font-bold text-black mb-3">
                         Is this the device you'll use on test day?
                       </div>
                       <div className="flex justify-center gap-10">
-                        <label className="flex items-center gap-2 cursor-pointer text-[15px] font-medium text-black">
+                        <label className="flex items-center gap-2 cursor-pointer text-[16px] font-medium text-black">
                           <input
                             type="radio"
                             name="deviceUse"
@@ -629,7 +640,7 @@ export default function TestDay() {
                           <span>Yes</span>
                         </label>
 
-                        <label className="flex items-center gap-2 cursor-pointer text-[15px] font-medium text-black">
+                        <label className="flex items-center gap-2 cursor-pointer text-[16px] font-medium text-black">
                           <input
                             type="radio"
                             name="deviceUse"
@@ -642,7 +653,7 @@ export default function TestDay() {
                       </div>
 
                       {deviceUse === 'no' && (
-                        <div className="mt-4 text-[13px] text-amber-800 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
+                        <div className="mt-4 text-[14px] text-amber-800 bg-amber-50 p-3 rounded-lg border border-amber-200">
                           Please complete setup on the specific device you plan to bring to your test center.
                         </div>
                       )}
@@ -654,16 +665,16 @@ export default function TestDay() {
               {/* STEP 4 OF 6: Device Lock Check (Photo 5) */}
               {step === 3 && (
                 <div className="flex flex-col items-center text-center w-full">
-                  <h1 className="text-[34px] font-normal text-[#1e1e1e] tracking-tight">
+                  <h1 className="text-[36px] sm:text-[40px] font-normal text-[#1e1e1e] tracking-tight">
                     Device Lock Check
                   </h1>
 
-                  <div className="mt-8 w-full max-w-[580px] rounded-2xl border border-[#d1d5db] bg-white p-9 text-center shadow-none">
-                    <p className="text-[15px] text-[#2c2c2c] mb-3 leading-relaxed">
+                  <div className="mt-8 w-full max-w-[920px] rounded-2xl border border-[#d1d5db] bg-white p-12 sm:p-16 text-center shadow-none">
+                    <p className="text-[16.5px] text-[#2c2c2c] mb-3 leading-relaxed">
                       On test day, Bluebook will go full-screen and you won't be able to access other apps or websites.
                     </p>
 
-                    <p className="text-[15px] text-[#2c2c2c] mb-6 leading-relaxed">
+                    <p className="text-[16.5px] text-[#2c2c2c] mb-8 leading-relaxed">
                       Select <span className="font-bold">Check My Device</span> now to make sure this is working.
                     </p>
 
@@ -671,13 +682,13 @@ export default function TestDay() {
                       type="button"
                       onClick={handleCheckDevice}
                       disabled={checkingLock}
-                      className="rounded-full bg-[#255cd8] hover:bg-[#1d4bb8] text-white px-8 py-2.5 text-[15px] font-semibold transition-colors shadow-sm"
+                      className="rounded-full bg-[#255cd8] hover:bg-[#1d4bb8] text-white px-9 py-3 text-[16px] font-semibold transition-colors shadow-sm"
                     >
                       {checkingLock ? 'Checking…' : 'Check My Device'}
                     </button>
 
                     {lockChecked && (
-                      <div className="mt-6 flex items-center justify-center gap-2 text-[15px] font-semibold text-[#137333]">
+                      <div className="mt-6 flex items-center justify-center gap-2 text-[16px] font-semibold text-[#137333]">
                         <CheckCircle2 size={19} className="fill-[#137333] text-white" />
                         <span>Device lock check successful!</span>
                       </div>
@@ -689,67 +700,67 @@ export default function TestDay() {
               {/* STEP 5 OF 6: Your Admission Ticket */}
               {step === 4 && (
                 <div className="flex flex-col items-center text-center w-full">
-                  <h1 className="text-[34px] font-normal text-[#1e1e1e] tracking-tight">
+                  <h1 className="text-[36px] sm:text-[40px] font-normal text-[#1e1e1e] tracking-tight">
                     Your Admission Ticket
                   </h1>
-                  <p className="mt-2 text-[15px] text-[#4b5563]">
+                  <p className="mt-2 text-[16px] text-[#4b5563]">
                     You'll need this ticket on test day. Print it or take a picture of it on your phone.
                   </p>
 
-                  <div className="mt-6 w-full max-w-[620px] rounded-2xl border-2 border-dashed border-[#8a8a8a] bg-white p-7 text-left shadow-none">
+                  <div className="mt-7 w-full max-w-[1000px] rounded-2xl border-2 border-dashed border-[#8a8a8a] bg-white p-9 sm:p-12 text-left shadow-none">
                     {/* Top Ticket Bar */}
-                    <div className="flex items-center justify-between border-b border-[#e5e7eb] pb-3 mb-4">
+                    <div className="flex items-center justify-between border-b border-[#e5e7eb] pb-4 mb-5">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-[22px] tracking-tight text-[#0077c8]">SAT<span className="text-[13px] align-super">®</span></span>
-                        <span className="text-[15px] font-semibold text-gray-500">| Admission Ticket</span>
+                        <span className="font-bold text-[24px] tracking-tight text-[#0077c8]">SAT<span className="text-[14px] align-super">®</span></span>
+                        <span className="text-[17px] font-semibold text-gray-500">| Admission Ticket</span>
                       </div>
-                      <span className="text-[12px] font-bold uppercase tracking-wider bg-green-100 text-green-800 px-2.5 py-0.5 rounded-full">
+                      <span className="text-[13px] font-bold uppercase tracking-wider bg-green-100 text-green-800 px-3 py-1 rounded-full">
                         Confirmed
                       </span>
                     </div>
 
                     {/* Ticket Details Grid */}
-                    <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-[14px]">
+                    <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-[15px]">
                       <div>
-                        <span className="text-gray-500 block text-[12px] font-medium">Student</span>
-                        <span className="font-bold text-[#1e1e1e] text-[15px]">{studentDisplayName}</span>
+                        <span className="text-gray-500 block text-[13px] font-medium">Student</span>
+                        <span className="font-bold text-[#1e1e1e] text-[17px]">{studentDisplayName}</span>
                       </div>
 
                       <div>
-                        <span className="text-gray-500 block text-[12px] font-medium">Registration Number</span>
-                        <span className="font-mono font-semibold text-[#1e1e1e]">SAT-2026-98134</span>
+                        <span className="text-gray-500 block text-[13px] font-medium">Registration Number</span>
+                        <span className="font-mono font-semibold text-[#1e1e1e] text-[16px]">SAT-2026-98134</span>
                       </div>
 
                       <div>
-                        <span className="text-gray-500 block text-[12px] font-medium">Date</span>
-                        <span className="font-semibold text-[#1e1e1e]">{fmtDate(reg.date)}</span>
+                        <span className="text-gray-500 block text-[13px] font-medium">Date</span>
+                        <span className="font-semibold text-[#1e1e1e] text-[16px]">{fmtDate(reg.date)}</span>
                       </div>
 
                       <div>
-                        <span className="text-gray-500 block text-[12px] font-medium">Arrival Time</span>
-                        <span className="font-semibold text-[#1e1e1e]">{reg.arrival || '7:45 a.m.'} (Doors close {reg.doorsClose || '8:00 a.m.'})</span>
+                        <span className="text-gray-500 block text-[13px] font-medium">Arrival Time</span>
+                        <span className="font-semibold text-[#1e1e1e] text-[16px]">{reg.arrival || '7:45 a.m.'} (Doors close {reg.doorsClose || '8:00 a.m.'})</span>
                       </div>
 
                       <div className="col-span-2">
-                        <span className="text-gray-500 block text-[12px] font-medium">Test Center</span>
-                        <span className="font-semibold text-[#1e1e1e]">{reg.center?.name || 'New Uzbekistan University'}</span>
-                        <div className="text-[13px] text-gray-600 font-normal">
+                        <span className="text-gray-500 block text-[13px] font-medium">Test Center</span>
+                        <span className="font-semibold text-[#1e1e1e] text-[16px]">{reg.center?.name || 'New Uzbekistan University'}</span>
+                        <div className="text-[14px] text-gray-600 font-normal mt-0.5">
                           {(reg.center?.lines || ['MOVAROUNNAHR 1 STREET', 'MIRZO ULUGBEK DISTRICT', 'TASHKENT CITY, UZ']).join(', ')}
                         </div>
                       </div>
 
                       <div className="col-span-2">
-                        <span className="text-gray-500 block text-[12px] font-medium">Accommodations</span>
-                        <span className="text-gray-700 text-[13px]">
+                        <span className="text-gray-500 block text-[13px] font-medium">Accommodations</span>
+                        <span className="text-gray-700 text-[14px]">
                           {reg.accommodations || 'You have no approved digital testing accommodations.'}
                         </span>
                       </div>
                     </div>
 
                     {/* Barcode Simulation */}
-                    <div className="mt-5 pt-4 border-t border-[#e5e7eb] flex flex-col items-center">
-                      <div className="flex h-10 items-end gap-[3px]" aria-hidden="true">
-                        {Array.from({ length: 54 }).map((_, i) => (
+                    <div className="mt-6 pt-5 border-t border-[#e5e7eb] flex flex-col items-center">
+                      <div className="flex h-12 items-end gap-[3px]" aria-hidden="true">
+                        {Array.from({ length: 64 }).map((_, i) => (
                           <span
                             key={i}
                             className="bg-black"
@@ -760,32 +771,32 @@ export default function TestDay() {
                           />
                         ))}
                       </div>
-                      <div className="mt-1 font-mono text-[11px] tracking-[0.25em] text-gray-500">
+                      <div className="mt-1.5 font-mono text-[12px] tracking-[0.25em] text-gray-500">
                         *1142658539-SAT-2026*
                       </div>
                     </div>
                   </div>
 
                   {/* Ticket Actions */}
-                  <div className="mt-5 flex items-center gap-4">
+                  <div className="mt-6 flex items-center gap-4">
                     <button
                       type="button"
                       onClick={() => {
                         window.print()
                         setTicketPrinted(true)
                       }}
-                      className="flex items-center gap-2 rounded-full border border-black bg-white px-5 py-2 text-[14px] font-medium text-black hover:bg-gray-50 transition-colors"
+                      className="flex items-center gap-2 rounded-full border border-black bg-white px-6 py-2.5 text-[15px] font-medium text-black hover:bg-gray-50 transition-colors"
                     >
-                      <Printer size={16} />
+                      <Printer size={17} />
                       <span>Print Ticket</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setTicketPrinted(true)}
-                      className="flex items-center gap-2 rounded-full border border-gray-300 bg-white px-5 py-2 text-[14px] font-medium text-gray-700 hover:border-black transition-colors"
+                      className="flex items-center gap-2 rounded-full border border-gray-300 bg-white px-6 py-2.5 text-[15px] font-medium text-gray-700 hover:border-black transition-colors"
                     >
-                      <Check size={16} className={ticketPrinted ? 'text-green-600' : 'text-gray-400'} />
+                      <Check size={17} className={ticketPrinted ? 'text-green-600' : 'text-gray-400'} />
                       <span>{ticketPrinted ? 'Ticket Saved' : 'Save as PDF'}</span>
                     </button>
                   </div>
@@ -800,46 +811,46 @@ export default function TestDay() {
                   {/* View A: Video / Laptop Illustration View (media_1790971838997.jpg) */}
                   {step6SubView === 'video' ? (
                     <div className="flex flex-col items-center text-center w-full">
-                      <h1 className="text-[34px] font-normal text-[#1e1e1e] tracking-tight">
+                      <h1 className="text-[36px] sm:text-[40px] font-normal text-[#1e1e1e] tracking-tight">
                         Get Ready for Test Day
                       </h1>
 
                       <div
                         onClick={() => setStep6SubView('guide')}
-                        className="group mt-8 w-full max-w-[620px] rounded-2xl border border-[#d1d5db] bg-white p-10 sm:p-12 text-center shadow-none cursor-pointer hover:border-[#255cd8] transition-all"
+                        className="group mt-8 w-full max-w-[960px] rounded-2xl border border-[#d1d5db] bg-white p-12 sm:p-16 text-center shadow-none cursor-pointer hover:border-[#255cd8] transition-all"
                         role="button"
                         tabIndex={0}
                         onKeyDown={(e) => e.key === 'Enter' && setStep6SubView('guide')}
                       >
                         {/* Authentic Bluebook Laptop Illustration */}
                         <div className="flex justify-center">
-                          <div className="w-[300px] sm:w-[340px]">
+                          <div className="w-[340px] sm:w-[400px]">
                             {/* Laptop Screen Frame */}
-                            <div className="relative h-[190px] rounded-t-xl border-[4px] border-[#2b2b2b] bg-white flex flex-col items-center justify-center shadow-sm">
+                            <div className="relative h-[210px] sm:h-[230px] rounded-t-xl border-[4px] border-[#2b2b2b] bg-white flex flex-col items-center justify-center shadow-sm">
                               {/* Bluebook SAT® Logo on Screen */}
-                              <div className="text-[36px] font-bold tracking-tight text-[#0077c8] select-none">
-                                SAT<span className="text-[16px] align-super">®</span>
+                              <div className="text-[40px] sm:text-[44px] font-bold tracking-tight text-[#0077c8] select-none">
+                                SAT<span className="text-[18px] align-super">®</span>
                               </div>
 
                               {/* Circular Blue Play Button */}
-                              <div className="mt-3 flex h-14 w-14 items-center justify-center rounded-full bg-[#0056b3] text-white shadow-md group-hover:scale-110 transition-transform">
-                                <Play size={22} className="fill-white translate-x-0.5" />
+                              <div className="mt-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#0056b3] text-white shadow-md group-hover:scale-110 transition-transform">
+                                <Play size={26} className="fill-white translate-x-0.5" />
                               </div>
                             </div>
 
                             {/* Laptop Base deck */}
-                            <div className="relative h-[14px] rounded-b-lg bg-[#d1d5db] border-x border-b border-[#9ca3af] flex items-center justify-center">
+                            <div className="relative h-[15px] rounded-b-lg bg-[#d1d5db] border-x border-b border-[#9ca3af] flex items-center justify-center">
                               {/* Trackpad notch */}
-                              <div className="h-[4px] w-12 rounded-b bg-[#9ca3af]" />
+                              <div className="h-[4px] w-14 rounded-b bg-[#9ca3af]" />
                             </div>
                           </div>
                         </div>
 
                         {/* Title Under Laptop */}
-                        <h2 className="mt-8 text-[24px] sm:text-[26px] font-bold text-[#1e1e1e] group-hover:text-[#255cd8] transition-colors">
+                        <h2 className="mt-8 text-[26px] sm:text-[28px] font-bold text-[#1e1e1e] group-hover:text-[#255cd8] transition-colors">
                           Get Ready for the Digital SAT
                         </h2>
-                        <p className="mt-2 text-[14px] text-gray-500 font-normal">
+                        <p className="mt-2 text-[15px] text-gray-500 font-normal">
                           Click to watch overview or read what to expect on test day
                         </p>
                       </div>
@@ -847,23 +858,23 @@ export default function TestDay() {
                   ) : (
                     /* View B: Full Verbatim Guide View (media_1790971817860.jpg) */
                     <div className="flex flex-col items-center text-center w-full">
-                      <div className="w-full max-w-[760px] rounded-2xl border border-[#d1d5db] bg-white p-7 sm:p-9 text-left shadow-none">
+                      <div className="w-full max-w-[1040px] rounded-2xl border border-[#d1d5db] bg-white p-8 sm:p-11 text-left shadow-none">
                         {/* Top bar with back to overview toggle */}
-                        <div className="flex items-center justify-between border-b border-[#e5e7eb] pb-3 mb-5">
-                          <h1 className="text-[26px] sm:text-[28px] font-normal text-[#1e1e1e] tracking-tight">
+                        <div className="flex items-center justify-between border-b border-[#e5e7eb] pb-4 mb-5">
+                          <h1 className="text-[28px] sm:text-[32px] font-normal text-[#1e1e1e] tracking-tight">
                             Get Ready for the Digital SAT
                           </h1>
                           <button
                             type="button"
                             onClick={() => setStep6SubView('video')}
-                            className="text-[14px] text-[#255cd8] hover:underline font-medium"
+                            className="text-[15px] text-[#255cd8] hover:underline font-medium"
                           >
                             ← Video Overview
                           </button>
                         </div>
 
                         {/* Scrollable exact verbatim text container */}
-                        <div className="bb-scroll h-[360px] overflow-y-auto pr-3 space-y-4 text-[15px] sm:text-[16px] text-[#2c2c2c] leading-relaxed font-normal">
+                        <div className="bb-scroll h-[460px] sm:h-[490px] overflow-y-auto pr-5 space-y-5 text-[15.5px] sm:text-[16px] text-[#2c2c2c] leading-[1.65] font-normal">
                           <p>
                             If you're taking the test on a weekend, here's how it'll work.
                           </p>
