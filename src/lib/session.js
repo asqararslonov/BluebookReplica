@@ -55,7 +55,7 @@ export function buildStages(test, preset) {
   return stages
 }
 
-export function createSession(test, preset, { studentName = 'Jasurbek Tojiqoziyev', lockdown = true, mode = 'test' } = {}) {
+export function createSession(test, preset, { studentName = 'Askarjon Arslonov', lockdown = true, mode = 'test' } = {}) {
   return {
     id: uid('sess'),
     testId: test.testId,

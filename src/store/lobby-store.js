@@ -14,7 +14,7 @@ export function tzLabel() {
   return `${sign}${String(Math.floor(Math.abs(off))).padStart(2, '0')}`
 }
 
-export const FIXED_STUDENT_NAME = 'Jasurbek Tojiqoziyev'
+export const FIXED_STUDENT_NAME = 'Askarjon Arslonov'
 
 export const DEFAULT_SETTINGS = {
   signedIn: false,
