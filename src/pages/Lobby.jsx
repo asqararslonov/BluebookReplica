@@ -97,8 +97,11 @@ export default function Lobby() {
                 {reg.setupComplete ? (
                   <div>
                     <div className="flex items-center gap-2 text-[17px] font-bold text-bb-green"><CheckCircle2 size={20} /> Exam setup is complete.</div>
-                    <div className="mt-2 pl-7 text-[17px]">Arrive at your test center at {reg.arrival} {tz} to check in.</div>
-                    <button type="button" className="bb-link mt-4 pl-7 text-[15px]" onClick={() => navigate('/test-day')}>It's test day — enter your room code</button>
+                    <div className="mt-2 pl-7 text-[17px] text-bb-gray-600">Arrive at your test center at {reg.arrival} {tz} to check in.</div>
+                    <div className="mt-5 flex items-center gap-4 pl-7">
+                      <button type="button" className="bb-btn-yellow !px-8 !py-3.5 !text-[17px] font-bold shadow-sm hover:shadow-md transition-shadow" onClick={() => navigate('/test-day')}>Check In to Your Test</button>
+                      <button type="button" className="bb-link text-[15px]" onClick={() => navigate('/test-day')}>Enter room code</button>
+                    </div>
                   </div>
                 ) : (
                   <div className="flex items-center justify-between">

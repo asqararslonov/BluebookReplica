@@ -1,15 +1,26 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { CheckCircle2, AlertTriangle, XCircle, RefreshCw } from 'lucide-react'
 import bridge, { isElectron } from '../../lib/bridge.js'
 import Modal from '../ui/Modal.jsx'
-import { normalizeTest } from '../../lib/schema.js'
-import { listPresets, createSession } from '../../lib/session.js'
+import { normalizeTest, getModule } from '../../lib/schema.js'
+import { listPresets, createSession, initialModuleState } from '../../lib/session.js'
 import { useLobbyStore, FIXED_STUDENT_NAME } from '../../store/lobby-store.js'
 
 /** Creates and launches a session. Returns the session id. */
 export async function launchTest(rawTest, preset, { studentName, lockdown, mode = 'test' }) {
   const test = normalizeTest(rawTest)
   const session = createSession(test, preset, { studentName, lockdown, mode })
+  if (mode === 'test-day') {
+    session.status = 'in-progress'
+    session.phase = 'module'
+    session.startedAt = Date.now()
+    const firstStage = session.stages[0]
+    if (firstStage && firstStage.type === 'module') {
+      const mod = getModule(test, firstStage.sectionId, 1, null)
+      session.modules[firstStage.key] = initialModuleState(mod, null)
+    }
+  }
   await bridge.sessions.save(session)
   const result = await bridge.exam.start(session.id, { lockdown })
   if (result && result.ok === false) throw new Error(result.error || 'Unable to start the test')
@@ -51,6 +62,7 @@ function StatusIcon({ status }) {
 }
 
 export default function StartTestDialog({ open, onClose, testEntry, defaultPresetId = null }) {
+  const navigate = useNavigate()
   const settings = useLobbyStore((s) => s.settings)
   const [raw, setRaw] = useState(null)
   const [presets, setPresets] = useState([])
@@ -120,6 +132,13 @@ export default function StartTestDialog({ open, onClose, testEntry, defaultPrese
             <input type="checkbox" className="mt-1 h-4 w-4" checked={lockdown} onChange={(e) => setLockdown(e.target.checked)} />
             <span className="text-[14px]"><b>Full-screen test window</b> — the test opens in its own full-screen window.</span>
           </label>
+          <div className="rounded-xl border border-bb-blue/25 bg-bb-blue-light/40 p-4 flex items-center justify-between gap-3">
+            <div>
+              <div className="text-[14px] font-bold text-bb-navy">Simulate Official Test Day?</div>
+              <div className="text-[12px] text-bb-gray-600">Enter proctor room & start codes, agree to testing rules, and check in.</div>
+            </div>
+            <button type="button" className="bb-btn-yellow shrink-0 !py-2 !px-4 !text-[13px] font-bold shadow-sm" onClick={() => { onClose?.(); navigate(`/test-day?testId=${testEntry.testId}`) }}>Test Day Mode →</button>
+          </div>
         </div>
       )}
       {step === 2 && (

@@ -35,11 +35,12 @@ export default function Practice() {
               <div className="flex flex-1 flex-col justify-between px-6 py-5">
                 <div className="text-[15px] text-bb-gray-600">{t.questionCount} questions · {Math.floor(t.durationMinutes / 60)}h {t.durationMinutes % 60}m{t.cached ? ' · on this device' : ''}</div>
                 {p && <div className="h-2 overflow-hidden rounded-full bg-bb-gray-200"><div className="h-full bg-bb-blue transition-[width]" style={{ width: `${p.percent ?? 0}%` }} /></div>}
-                <div className="flex items-center justify-end gap-5">
+                <div className="flex items-center justify-end gap-3.5">
                   {t.cached ? (
                     <>
                       <button type="button" className="bb-link text-[14px]" onClick={() => setDialogTest(t)}>Options</button>
-                      <button type="button" className="bb-btn-outline !py-3 !text-[18px]" disabled={busy} onClick={() => start(t)}>Start</button>
+                      <button type="button" className="bb-link text-[14px] font-semibold text-bb-blue hover:text-bb-blue-dark" onClick={() => navigate(`/test-day?testId=${t.testId}`)}>Test Day</button>
+                      <button type="button" className="bb-btn-outline !py-2.5 !px-5 !text-[16px]" disabled={busy} onClick={() => start(t)}>Start</button>
                     </>
                   ) : (
                     <button type="button" className="bb-btn-outline !py-3 !text-[18px]" disabled={!!p} onClick={() => download(t.testId)}><Download size={18} /> {p ? `${p.percent ?? 0}%` : 'Download'}</button>

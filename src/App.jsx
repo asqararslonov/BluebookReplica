@@ -13,13 +13,13 @@ export default function App() {
     <HashRouter>
       <Routes>
         <Route path="/exam/:sessionId" element={<Exam />} />
+        <Route path="/test-day" element={<TestDay />} />
         <Route path="/signin" element={<SignIn />} />
         <Route element={<LobbyShell />}>
           <Route path="/" element={<Lobby />} />
           <Route path="/practice" element={<Practice />} />
           <Route path="/results" element={<Results />} />
           <Route path="/results/:sessionId" element={<ResultDetail />} />
-          <Route path="/test-day" element={<TestDay />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
