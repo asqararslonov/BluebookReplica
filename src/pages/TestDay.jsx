@@ -21,6 +21,7 @@ import {
   RefreshCw,
   LogOut,
   Sparkles,
+  Laptop,
 } from 'lucide-react'
 import bridge, { isElectron } from '../lib/bridge.js'
 import { useLobbyStore, FIXED_STUDENT_NAME } from '../store/lobby-store.js'
