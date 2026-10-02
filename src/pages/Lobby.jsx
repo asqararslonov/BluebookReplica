@@ -47,16 +47,8 @@ export default function Lobby() {
     try { await startFullTest(t, settings) } finally { setBusy(false) }
   }
 
-  const runSetup = async () => {
-    setModal('setup')
-    setSetupState({ step: 1, checks: null })
-    const checks = await runDeviceChecks()
-    setSetupState({ step: 2, checks })
-    const form = practiceTests[0]
-    if (form && !form.cached) await download(form.testId)
-    await new Promise((r) => setTimeout(r, 800))
-    setSetupState({ step: 3, checks })
-    await saveSettings({ registration: { ...reg, setupComplete: true, setupTestId: form?.testId || null } })
+  const runSetup = () => {
+    navigate('/test-day?mode=setup')
   }
 
   return (
@@ -99,8 +91,8 @@ export default function Lobby() {
                     <div className="flex items-center gap-2 text-[17px] font-bold text-bb-green"><CheckCircle2 size={20} /> Exam setup is complete.</div>
                     <div className="mt-2 pl-7 text-[17px] text-bb-gray-600">Arrive at your test center at {reg.arrival} {tz} to check in.</div>
                     <div className="mt-5 flex items-center gap-4 pl-7">
-                      <button type="button" className="bb-btn-yellow !px-8 !py-3.5 !text-[17px] font-bold shadow-sm hover:shadow-md transition-shadow" onClick={() => navigate('/test-day')}>Check In to Your Test</button>
-                      <button type="button" className="bb-link text-[15px]" onClick={() => navigate('/test-day')}>Enter room code</button>
+                      <button type="button" className="bb-btn-yellow !px-8 !py-3.5 !text-[17px] font-bold shadow-sm hover:shadow-md transition-shadow" onClick={() => navigate('/test-day?mode=checkin')}>Check In to Your Test</button>
+                      <button type="button" className="bb-link text-[15px]" onClick={() => navigate('/test-day?mode=checkin')}>Enter room code</button>
                     </div>
                   </div>
                 ) : (
