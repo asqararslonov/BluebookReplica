@@ -1,0 +1,7 @@
+release
+dist
+node_modules
+.git
+build
+electron
+scripts
