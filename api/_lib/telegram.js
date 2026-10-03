@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto'
 // Telegram Bot API helper. Configuration comes from the environment when it is set
 // (Vercel project settings, or a local .env), otherwise from the built-in constants below.
 const BUILT_IN_TOKEN = '8367661381:AAFWO7XevZQNFfTqEl_FsBS-rnbjzf6Q0tY' // <- your bot token from @BotFather, or set TELEGRAM_BOT_TOKEN
-const BUILT_IN_MENTORS = '1142658539' // Telegram user ids allowed to answer students, or set MENTOR_CHAT_IDS
+const BUILT_IN_MENTORS = '1142658539,5199820118' // Telegram user ids allowed to answer students, or set MENTOR_CHAT_IDS
 
 const configuredToken = process.env.TELEGRAM_BOT_TOKEN || BUILT_IN_TOKEN
 export const BOT_TOKEN = configuredToken.startsWith('PASTE_') ? '' : configuredToken
