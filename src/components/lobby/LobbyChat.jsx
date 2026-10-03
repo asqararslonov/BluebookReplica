@@ -18,7 +18,7 @@ export function useLobbyChat() {
   const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {
-    if (loading || !settings.signedIn) return
+    if (loading) return
     let alive = true
     ;(async () => {
       const on = settings.chat?.enabled !== false
@@ -30,7 +30,7 @@ export function useLobbyChat() {
       setEnabled(!!(base && code))
     })()
     return () => { alive = false }
-  }, [loading, settings.signedIn, settings.chat?.enabled, settings.chat?.url, settings.chatCode, settings.studentName, configure, saveSettings])
+  }, [loading, settings.chat?.enabled, settings.chat?.url, settings.chatCode, settings.studentName, configure, saveSettings])
 
   useEffect(() => {
     if (!enabled) return

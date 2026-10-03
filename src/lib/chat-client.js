@@ -9,7 +9,12 @@ export function resolveChatBase(settings) {
   if (override) return override.replace(/\/+$/, '')
   const env = import.meta.env.VITE_CHAT_URL
   if (env) return String(env).replace(/\/+$/, '')
-  if (typeof window !== 'undefined' && /^https?:/.test(window.location.origin)) return window.location.origin
+  if (typeof window !== 'undefined' && /^https?:/.test(window.location.origin)) {
+    if (/localhost|127\.0\.0\.1/.test(window.location.hostname)) {
+      return DEFAULT_CHAT_BASE
+    }
+    return window.location.origin
+  }
   return DEFAULT_CHAT_BASE
 }
 
@@ -41,6 +46,11 @@ async function request(base, path, options = {}) {
 
 export const chatApi = {
   health: (base) => request(base, 'health'),
-  messages: (base, code, after) => request(base, `messages?code=${encodeURIComponent(code)}&after=${after || 0}`),
+  messages: (base, code, after, name, context) => {
+    let qs = `messages?code=${encodeURIComponent(code)}&after=${after || 0}`
+    if (name) qs += `&name=${encodeURIComponent(name)}`
+    if (context) qs += `&context=${encodeURIComponent(context)}`
+    return request(base, qs)
+  },
   send: (base, payload) => request(base, 'send', { method: 'POST', body: JSON.stringify(payload) }),
 }

@@ -20,11 +20,11 @@ export const useChatStore = create((set, get) => ({
   toggle() { const open = !get().open; set({ open, unread: open ? 0 : get().unread }) },
   setOpen(open) { set({ open, unread: open ? 0 : get().unread }) },
 
-  async poll() {
-    const { base, code, lastTs } = get()
+  async poll(context) {
+    const { base, code, lastTs, name } = get()
     if (!base || !code) return
     try {
-      const data = await chatApi.messages(base, code, lastTs)
+      const data = await chatApi.messages(base, code, lastTs, name, context)
       const incoming = (data.messages || []).filter((m) => !get().messages.some((x) => x.id === m.id))
       if (incoming.length) {
         const newFromMentor = incoming.filter((m) => m.from === 'mentor').length

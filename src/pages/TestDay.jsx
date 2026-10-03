@@ -14,6 +14,7 @@ import { useLobbyStore, FIXED_STUDENT_NAME } from '../store/lobby-store.js'
 import { normalizeTest } from '../lib/schema.js'
 import { listPresets } from '../lib/session.js'
 import { launchTest } from '../components/lobby/StartTestDialog.jsx'
+import { LobbyChatPanel } from '../components/lobby/LobbyChat.jsx'
 
 const TOTAL_STEPS = 10
 
@@ -955,6 +956,9 @@ export default function TestDay() {
           </div>
         </div>
       )}
+
+      {/* Mentor Chat Relay */}
+      <LobbyChatPanel />
     </div>
   )
 }
